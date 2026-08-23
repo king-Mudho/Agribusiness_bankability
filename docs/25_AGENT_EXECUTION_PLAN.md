@@ -9,6 +9,25 @@ renders). Commit at the end of each phase: `phase(N): <summary>`.
 *(Agent: add any ambiguity you hit here, with the assumption you made, instead of
 guessing silently — see `AGENTS.md` § 3.)*
 
+- **Phase 5 — full gap→pathway boost mapping.** `13_FINANCING_PATHWAYS.md` § Selection
+  logic step 3 only gives two worked examples of the gap-boost rule ("weak Climate
+  Resilience → surface `insurance_linked_finance` higher; weak Market Strength → surface
+  `contract_value_chain_finance` higher") without a complete table for all six
+  dimensions. This is Python selection logic, not framework content/wording, so I filled
+  in the remaining four dimensions using the same theme as the pathway descriptions in
+  that doc: `financial_performance` → `working_capital_facility`, `patient_capital`;
+  `governance_management` → `grant_technical_assistance`; `operational_capacity` →
+  `asset_finance`; `digital_readiness` → no boost (none of the nine pathways specifically
+  addresses digital gaps). See `GAP_DIMENSION_TO_PATHWAY_BOOST` in
+  `backend/apps/financing/services.py`. The two documented examples are exact; the other
+  four are my extension and should be reviewed by the research team before v0.2.
+- **Phase 12 — expert review / pretest note submission UI.** `25_AGENT_EXECUTION_PLAN.md`
+  Phase 12 allows either a simple internal form or a Django-admin-only route for
+  `ExpertReview`/`CognitivePretestNote`. I built both: real `POST` API endpoints
+  (`/research/expert-review/`, `/research/pretest-note/`) plus Django admin registration,
+  and a minimal internal form under `/admin` in the frontend. Noting the choice here per
+  the phase instructions.
+
 ---
 
 ## Phase 0 — Repository scaffold
@@ -85,11 +104,11 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 5 — Recommendation & financing pathway engines
 
-- [ ] Implement the dimension-ranking + recommendation-selection logic per
+- [x] Implement the dimension-ranking + recommendation-selection logic per
       `12_RECOMMENDATION_ENGINE.md`.
-- [ ] Implement the band-based + gap-boosted financing pathway selection logic per
+- [x] Implement the band-based + gap-boosted financing pathway selection logic per
       `13_FINANCING_PATHWAYS.md`.
-- [ ] Unit test both against known dimension-score fixtures.
+- [x] Unit test both against known dimension-score fixtures.
 
 ## Phase 6 — REST API & auth
 
