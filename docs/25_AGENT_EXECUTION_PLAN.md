@@ -13,54 +13,54 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 0 — Repository scaffold
 
-- [ ] Create the two-folder repo layout (`frontend/`, `backend/`, `docs/`, `AGENTS.md`,
+- [x] Create the two-folder repo layout (`frontend/`, `backend/`, `docs/`, `AGENTS.md`,
       root `README.md`) exactly as in `03_SYSTEM_ARCHITECTURE.md`.
-- [ ] Scaffold `backend/` as a Django project with the `config/` and `apps/` structure
+- [x] Scaffold `backend/` as a Django project with the `config/` and `apps/` structure
       from `08_BACKEND_ARCHITECTURE.md`; create all twelve empty apps.
-- [ ] Scaffold `frontend/` as a Next.js + TypeScript project with the structure from
+- [x] Scaffold `frontend/` as a Next.js + TypeScript project with the structure from
       `07_FRONTEND_ARCHITECTURE.md`.
-- [ ] Add `.env.example` files (backend and frontend) exactly per
+- [x] Add `.env.example` files (backend and frontend) exactly per
       `21_ENVIRONMENT_CONFIGURATION.md`.
-- [ ] Set up `requirements/base.txt`, `dev.txt`, `prod.txt` and `frontend/package.json`
+- [x] Set up `requirements/base.txt`, `dev.txt`, `prod.txt` and `frontend/package.json`
       with the dependencies from `04_TECH_STACK.md`, with pinned versions.
-- [ ] Confirm `python manage.py runserver` and `pnpm dev` (or `npm run dev`) both boot
+- [x] Confirm `python manage.py runserver` and `pnpm dev` (or `npm run dev`) both boot
       cleanly with placeholder pages.
 
 ## Phase 1 — Core backend models
 
-- [ ] Implement `accounts` app: `User`, `Role`.
-- [ ] Implement `enterprises` app: `Enterprise`, `EnterpriseProfile`.
-- [ ] Implement `frameworks` app: `FrameworkVersion`, `Dimension`, `Question`,
+- [x] Implement `accounts` app: `User`, `Role`.
+- [x] Implement `enterprises` app: `Enterprise`, `EnterpriseProfile`.
+- [x] Implement `frameworks` app: `FrameworkVersion`, `Dimension`, `Question`,
       `ResponseOption`, `CriticalGateDefinition`, readiness-band lookup — per
       `05_DATABASE_ARCHITECTURE.md`.
-- [ ] Implement `assessments` app: `Assessment`, `AssessmentResponse`,
+- [x] Implement `assessments` app: `Assessment`, `AssessmentResponse`,
       `CriticalGateResult`.
-- [ ] Implement `evidence` app: `EvidenceRecord`.
-- [ ] Implement `scoring` app models: `DimensionScore`, `ABIScore`.
-- [ ] Implement `recommendations` app models: `Recommendation`,
+- [x] Implement `evidence` app: `EvidenceRecord`.
+- [x] Implement `scoring` app models: `DimensionScore`, `ABIScore`.
+- [x] Implement `recommendations` app models: `Recommendation`,
       `AssessmentRecommendation`.
-- [ ] Implement `financing` app models: `FinancingPathwayDefinition`,
+- [x] Implement `financing` app models: `FinancingPathwayDefinition`,
       `AssessmentFinancingPathway`.
-- [ ] Implement `reports` app: `Report`.
-- [ ] Implement `feedback` app: `PilotFeedback`.
-- [ ] Implement `research` app: `ExpertReview`, `CognitivePretestNote`.
-- [ ] Implement `audit` app: `AuditLog` (+ signal handlers for key actions).
-- [ ] Run and commit initial migrations.
-- [ ] Add a model-level or serializer-level validator that a `FrameworkVersion`'s
+- [x] Implement `reports` app: `Report`.
+- [x] Implement `feedback` app: `PilotFeedback`.
+- [x] Implement `research` app: `ExpertReview`, `CognitivePretestNote`.
+- [x] Implement `audit` app: `AuditLog` (+ signal handlers for key actions).
+- [x] Run and commit initial migrations.
+- [x] Add a model-level or serializer-level validator that a `FrameworkVersion`'s
       `Dimension.weight_percent` values sum to 100.
 
 ## Phase 2 — Seed data
 
-- [ ] Write the `seed_abi_v01` management command per `24_SEED_DATA.md`, seeding the
+- [x] Write the `seed_abi_v01` management command per `24_SEED_DATA.md`, seeding the
       full `FrameworkVersion 0.1` (six dimensions, 24 questions, response scale, five
       gates, five readiness bands) exactly as specified in `09_ABI_FRAMEWORK.md` and
       `11_CRITICAL_GATES.md`.
-- [ ] Seed `Recommendation` rows per `12_RECOMMENDATION_ENGINE.md`.
-- [ ] Seed `FinancingPathwayDefinition` rows per `13_FINANCING_PATHWAYS.md`.
-- [ ] Seed the five `Role` rows.
-- [ ] Seed the two demo enterprises (Maundurahuku, Zvemuchando) with full 24-question
+- [x] Seed `Recommendation` rows per `12_RECOMMENDATION_ENGINE.md`.
+- [x] Seed `FinancingPathwayDefinition` rows per `13_FINANCING_PATHWAYS.md`.
+- [x] Seed the five `Role` rows.
+- [x] Seed the two demo enterprises (Maundurahuku, Zvemuchando) with full 24-question
       demo responses and gate results tuned to their target bands.
-- [ ] Verify `Dimension.weight_percent` sums to exactly 100 for the seeded version.
+- [x] Verify `Dimension.weight_percent` sums to exactly 100 for the seeded version.
 
 ## Phase 3 — Scoring engine
 
