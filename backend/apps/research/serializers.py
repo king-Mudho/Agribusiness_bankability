@@ -1,9 +1,15 @@
 from rest_framework import serializers
 
+from apps.frameworks.models import FrameworkVersion, Question
+
 from .models import CognitivePretestNote, ExpertReview
 
 
 class ExpertReviewSerializer(serializers.ModelSerializer):
+    framework_version = serializers.SlugRelatedField(
+        slug_field="version_label", queryset=FrameworkVersion.objects.all()
+    )
+
     class Meta:
         model = ExpertReview
         fields = [
@@ -19,6 +25,10 @@ class ExpertReviewSerializer(serializers.ModelSerializer):
 
 
 class CognitivePretestNoteSerializer(serializers.ModelSerializer):
+    question = serializers.SlugRelatedField(
+        slug_field="code", queryset=Question.objects.all(), required=False, allow_null=True
+    )
+
     class Meta:
         model = CognitivePretestNote
         fields = [

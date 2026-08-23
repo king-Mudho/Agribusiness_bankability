@@ -92,4 +92,18 @@ export const researchApi = {
     const query = params ? `?${new URLSearchParams(params).toString()}` : "";
     return apiClient.get<DashboardPayload>(`/research/dashboard/${query}`);
   },
+  submitExpertReview: (payload: {
+    framework_version: string;
+    reviewer_name: string;
+    reviewer_affiliation?: string;
+    comments: string;
+    suggested_weight_changes?: Record<string, number>;
+  }) => apiClient.post("/research/expert-review/", payload),
+  submitPretestNote: (payload: {
+    assessment?: string;
+    observer_name: string;
+    question?: string;
+    observation: string;
+    perceived_usefulness_rating?: number;
+  }) => apiClient.post("/research/pretest-note/", payload),
 };

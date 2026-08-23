@@ -52,7 +52,11 @@ def test_expert_review_requires_researcher_or_admin(api_client, seeded_db):
     from apps.frameworks.models import FrameworkVersion
 
     fv = FrameworkVersion.objects.get(version_label="0.1")
-    payload = {"framework_version": fv.pk, "reviewer_name": "Dr Test", "comments": "Looks solid."}
+    payload = {
+        "framework_version": fv.version_label,
+        "reviewer_name": "Dr Test",
+        "comments": "Looks solid.",
+    }
 
     resp = api_client.post("/api/v1/research/expert-review/", payload, format="json")
     assert resp.status_code == 401

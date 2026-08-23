@@ -187,8 +187,8 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 12 — Feedback & research validation
 
-- [ ] Build the pilot feedback form (`/feedback/[id]`) per `17_RESEARCH_VALIDATION.md`.
-- [ ] Build internal expert-review and cognitive-pretest-note submission (can be a
+- [x] Build the pilot feedback form (`/feedback/[id]`) per `17_RESEARCH_VALIDATION.md`.
+- [x] Build internal expert-review and cognitive-pretest-note submission (can be a
       simple internal form or documented as Django-admin-only for v0.1 — note your
       choice under "Open questions" above if you take the admin-only route).
 

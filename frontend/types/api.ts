@@ -143,8 +143,8 @@ export interface ResultsPayload {
 
 export interface PilotFeedbackPayload {
   score_reflects_enterprise: boolean | null;
-  most_relevant_dimension?: number | null;
-  unclear_question?: number | null;
+  most_relevant_dimension?: string | null;
+  unclear_question?: string | null;
   missing_factor_notes?: string;
   would_help_prepare_for_finance: boolean | null;
   willing_to_provide_evidence_later: boolean | null;
