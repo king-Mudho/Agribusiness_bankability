@@ -64,15 +64,15 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 3 — Scoring engine
 
-- [ ] Implement `compute_abi()` in `scoring` exactly per `10_SCORING_ENGINE.md`
+- [x] Implement `compute_abi()` in `scoring` exactly per `10_SCORING_ENGINE.md`
       (mapping → dimension average → weighted contribution → total → band lookup).
-- [ ] Implement the completeness rule (reject submit if any of the 24 questions is
+- [x] Implement the completeness rule (reject submit if any of the 24 questions is
       unanswered).
-- [ ] Implement `evidence_coverage_percent` calculation.
-- [ ] Write the exact-value unit test for the worked example (61.75 → 62, Developing
+- [x] Implement `evidence_coverage_percent` calculation.
+- [x] Write the exact-value unit test for the worked example (61.75 → 62, Developing
       Bankability).
-- [ ] Write unit tests for each readiness-band boundary.
-- [ ] Write a unit test confirming the seeded demo enterprises land in their intended
+- [x] Write unit tests for each readiness-band boundary.
+- [x] Write a unit test confirming the seeded demo enterprises land in their intended
       bands.
 
 ## Phase 4 — Critical gates & evidence

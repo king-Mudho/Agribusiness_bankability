@@ -27,6 +27,7 @@ from apps.frameworks.models import (
     ResponseOption,
 )
 from apps.recommendations.models import Recommendation
+from apps.scoring.services import score_assessment
 
 FRAMEWORK_VERSION_LABEL = "0.1"
 
@@ -339,13 +340,14 @@ class Command(BaseCommand):
             finance_type_sought="WORKING_CAPITAL",
             preferred_financier_type="BANK",
         )
-        self._seed_demo_assessment(
+        maundurahuku_assessment = self._seed_demo_assessment(
             enterprise=maundurahuku,
             framework_version=fv,
             responses=MAUNDURAHUKU_RESPONSES,
             evidence=MAUNDURAHUKU_EVIDENCE,
             gates=MAUNDURAHUKU_GATES,
         )
+        score_assessment(maundurahuku_assessment)
 
         zvemuchando = self._seed_enterprise(
             code="DEMO-ZVEMUCHANDO",
@@ -361,13 +363,14 @@ class Command(BaseCommand):
             finance_type_sought="ASSET_FINANCE",
             preferred_financier_type="DEVELOPMENT_FINANCE",
         )
-        self._seed_demo_assessment(
+        zvemuchando_assessment = self._seed_demo_assessment(
             enterprise=zvemuchando,
             framework_version=fv,
             responses=ZVEMUCHANDO_RESPONSES,
             evidence=ZVEMUCHANDO_EVIDENCE,
             gates=ZVEMUCHANDO_GATES,
         )
+        score_assessment(zvemuchando_assessment)
 
         self.stdout.write(self.style.SUCCESS("Seed complete."))
 
