@@ -1,0 +1,32 @@
+# Install at /etc/systemd/system/abi-backend.service
+# per docs/20_DEPLOYMENT_ARCHITECTURE.md.
+#
+#   sudo cp abi-backend.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now abi-backend
+
+[Unit]
+Description=ABI Demo backend (Django/Gunicorn)
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=abi
+Group=abi
+WorkingDirectory=/srv/abi/backend
+EnvironmentFile=/srv/abi/backend/.env
+Environment=DJANGO_SETTINGS_MODULE=config.settings.prod
+ExecStart=/srv/abi/backend/.venv/bin/gunicorn \
+    config.wsgi:application \
+    --bind 127.0.0.1:8000 \
+    --workers 3 \
+    --timeout 60 \
+    --access-logfile - \
+    --error-logfile -
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

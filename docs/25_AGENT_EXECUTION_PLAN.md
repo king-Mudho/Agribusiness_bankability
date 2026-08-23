@@ -209,11 +209,11 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 15 — Deployment prep
 
-- [ ] Write Nginx config per `20_DEPLOYMENT_ARCHITECTURE.md`.
-- [ ] Write `systemd` units (or documented process-manager config) for backend and
+- [x] Write Nginx config per `20_DEPLOYMENT_ARCHITECTURE.md`.
+- [x] Write `systemd` units (or documented process-manager config) for backend and
       frontend.
-- [ ] Document the Postgres backup/restore procedure.
-- [ ] Confirm the rollout checklist in `20_DEPLOYMENT_ARCHITECTURE.md` passes on a
+- [x] Document the Postgres backup/restore procedure.
+- [x] Confirm the rollout checklist in `20_DEPLOYMENT_ARCHITECTURE.md` passes on a
       staging-like run.
 
 ## Phase 16 — Demo polish

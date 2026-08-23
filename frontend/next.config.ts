@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import withPWAInit from "@ducanh2912/next-pwa";
+import withPWAInit, { runtimeCaching as defaultRuntimeCaching } from "@ducanh2912/next-pwa";
 
 const withPWA = withPWAInit({
   dest: "public",
@@ -7,6 +7,9 @@ const withPWA = withPWAInit({
   register: true,
   workboxOptions: {
     skipWaiting: true,
+    // A custom runtimeCaching array REPLACES next-pwa's defaults rather than
+    // extending them, so the app-shell/page caching that makes the PWA work
+    // offline at all must be spread in explicitly alongside our one addition.
     runtimeCaching: [
       {
         // The framework definition (dimensions/questions/gates/bands) is
@@ -19,6 +22,7 @@ const withPWA = withPWAInit({
           expiration: { maxEntries: 8, maxAgeSeconds: 60 * 60 * 24 * 7 },
         },
       },
+      ...defaultRuntimeCaching,
     ],
   },
 });

@@ -1,0 +1,26 @@
+# Install at /etc/systemd/system/abi-frontend.service
+# per docs/20_DEPLOYMENT_ARCHITECTURE.md. Runs the Next.js production
+# server -- never `next dev` in production.
+#
+#   sudo cp abi-frontend.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now abi-frontend
+
+[Unit]
+Description=ABI Demo frontend (Next.js)
+After=network.target abi-backend.service
+
+[Service]
+Type=simple
+User=abi
+Group=abi
+WorkingDirectory=/srv/abi/frontend
+EnvironmentFile=/srv/abi/frontend/.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/npm run start
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
