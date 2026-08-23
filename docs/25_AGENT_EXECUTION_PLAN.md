@@ -202,10 +202,10 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 14 — Testing pass
 
-- [ ] Run the full backend test suite; all green.
-- [ ] Run the full frontend component test suite; all green.
-- [ ] Run the Playwright E2E happy-path and offline-scenario tests; both green.
-- [ ] Run the privacy assertion tests; green.
+- [x] Run the full backend test suite; all green.
+- [x] Run the full frontend component test suite; all green.
+- [x] Run the Playwright E2E happy-path and offline-scenario tests; both green.
+- [x] Run the privacy assertion tests; green.
 
 ## Phase 15 — Deployment prep
 
