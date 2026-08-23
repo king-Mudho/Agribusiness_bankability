@@ -35,6 +35,15 @@ guessing silently — see `AGENTS.md` § 3.)*
   answer and at submit time if it didn't succeed yet. This is a scoped,
   disclosed interpretation of FR-7 for engineering tractability, not a
   scoring/gate/pathway content decision.
+- **Phase 10 — Agribusiness view identity.** Public respondents have no
+  account in v0.1 (FR-17), so "the signed-in/linked enterprise's own latest
+  assessment" (`15_DASHBOARD_SPECIFICATION.md`) can't mean an authenticated
+  session. Implemented as: the wizard records the most recently *submitted*
+  assessment id in this browser's `localStorage`
+  (`lib/constants/storageKeys.ts`), and the Agribusiness view reads that to
+  show "your" latest results, falling back to a "Start ABI Assessment" CTA
+  if none exists on this device. This is a device-local convenience, not an
+  account system -- out of scope per `02_PRODUCT_REQUIREMENTS.md`.
 - **Phase 12 — expert review / pretest note submission UI.** `25_AGENT_EXECUTION_PLAN.md`
   Phase 12 allows either a simple internal form or a Django-admin-only route for
   `ExpertReview`/`CognitivePretestNote`. I built both: real `POST` API endpoints
@@ -163,11 +172,11 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 10 — Executive / research dashboard UI
 
-- [ ] Build the Agribusiness view.
-- [ ] Build the Research/Lender aggregate view with the KPI cards and comparisons from
+- [x] Build the Agribusiness view.
+- [x] Build the Research/Lender aggregate view with the KPI cards and comparisons from
       `15_DASHBOARD_SPECIFICATION.md`.
-- [ ] Add filters (value chain, province, readiness band, date range).
-- [ ] Add the pilot-data caption.
+- [x] Add filters (value chain, province, readiness band, date range).
+- [x] Add the pilot-data caption.
 
 ## Phase 11 — Reporting
 

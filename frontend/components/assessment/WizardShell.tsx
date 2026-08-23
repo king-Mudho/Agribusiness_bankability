@@ -14,6 +14,7 @@ import { OfflineBanner } from "@/components/shared/OfflineBanner";
 import { assessmentsApi, enterprisesApi, frameworksApi } from "@/lib/api/endpoints";
 import type { WizardGate } from "@/lib/offline/db";
 import { enqueue } from "@/lib/offline/syncQueue";
+import { LAST_ASSESSMENT_ID_KEY } from "@/lib/constants/storageKeys";
 import { isLocalAssessmentId } from "@/lib/wizard/localId";
 import { useWizardStore } from "@/lib/wizard/store";
 import { buildWizardSteps, totalQuestionCount } from "@/lib/wizard/steps";
@@ -184,6 +185,7 @@ export function WizardShell({ assessmentId }: { assessmentId: string }) {
         return;
       }
       const results = await assessmentsApi.submit(remote.assessmentId);
+      window.localStorage.setItem(LAST_ASSESSMENT_ID_KEY, results.assessment_id);
       router.push(`/results/${results.assessment_id}`);
     } catch (err) {
       const message =

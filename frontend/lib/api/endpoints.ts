@@ -12,6 +12,11 @@ import type {
   ResultsPayload,
 } from "@/types/api";
 
+export const authApi = {
+  login: (username: string, password: string) =>
+    apiClient.post<{ access: string; refresh: string }>("/auth/token/", { username, password }),
+};
+
 export const enterprisesApi = {
   create: (payload: EnterpriseCreatePayload) => apiClient.post<Enterprise>("/enterprises/", payload),
   get: (id: string) => apiClient.get<Enterprise>(`/enterprises/${id}/`),
