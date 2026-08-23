@@ -10,7 +10,7 @@ import io
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
@@ -20,69 +20,85 @@ from apps.assessments.results import build_results_payload
 from apps.frameworks.models import Question
 
 
+def _compact_styles():
+    """A dense stylesheet -- docs/16_REPORTING_SPECIFICATION.md requires the
+    whole report fit a single page, and ReportLab's default Heading/Normal
+    styles are far too spacious for that once every section is included.
+    """
+    base = getSampleStyleSheet()
+    styles = {
+        "Title": ParagraphStyle("CompactTitle", parent=base["Title"], fontSize=15, leading=17, spaceAfter=2),
+        "Section": ParagraphStyle(
+            "CompactSection",
+            parent=base["Heading3"],
+            fontSize=10,
+            leading=12,
+            spaceBefore=6,
+            spaceAfter=2,
+            textColor=colors.HexColor("#0E3B2E"),
+        ),
+        "Body": ParagraphStyle("CompactBody", parent=base["Normal"], fontSize=8.5, leading=11),
+    }
+    return styles
+
+
 def generate_pdf_report(assessment) -> bytes:
     payload = build_results_payload(assessment)
-    styles = getSampleStyleSheet()
+    styles = _compact_styles()
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
-        buffer, pagesize=A4, topMargin=18 * mm, bottomMargin=18 * mm, leftMargin=18 * mm, rightMargin=18 * mm
+        buffer, pagesize=A4, topMargin=14 * mm, bottomMargin=14 * mm, leftMargin=16 * mm, rightMargin=16 * mm
     )
     story = [
-        Paragraph("AGRIBUSINESS BANKABILITY INDEX", styles["Title"]),
-        Paragraph("ABI DEMO -- VERSION 0.1", styles["Heading3"]),
-        Spacer(1, 6),
-        Paragraph(f"Enterprise: {assessment.enterprise.name}", styles["Normal"]),
+        Paragraph("AGRIBUSINESS BANKABILITY INDEX -- ABI DEMO v0.1", styles["Title"]),
         Paragraph(
-            f"Assessment date: {assessment.submitted_at.date() if assessment.submitted_at else '-'}",
-            styles["Normal"],
+            f"Enterprise: {assessment.enterprise.name} | "
+            f"Assessment date: {assessment.submitted_at.date() if assessment.submitted_at else '-'} | "
+            f"ABI SCORE: {payload['abi_score']:.0f}/100 | "
+            f"READINESS: {payload['readiness_band']['label']}",
+            styles["Body"],
         ),
-        Spacer(1, 10),
-        Paragraph("ABI SCORE", styles["Heading2"]),
-        Paragraph(f"{payload['abi_score']:.0f} / 100", styles["Normal"]),
-        Paragraph("READINESS", styles["Heading2"]),
-        Paragraph(payload["readiness_band"]["label"], styles["Normal"]),
-        Spacer(1, 10),
-        Paragraph("DIMENSION PROFILE", styles["Heading2"]),
     ]
 
+    story.append(Paragraph("Dimension profile", styles["Section"]))
     dim_table_data = [["Dimension", "Score", "Weight"]] + [
         [d["dimension"], f"{d['score']:.0f}", f"{d['weight_percent']:.0f}%"]
         for d in payload["dimension_scores"]
     ]
-    dim_table = Table(dim_table_data, hAlign="LEFT")
+    dim_table = Table(dim_table_data, hAlign="LEFT", colWidths=[65 * mm, 20 * mm, 20 * mm])
     dim_table.setStyle(
         TableStyle(
             [
                 ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0E3B2E")),
                 ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
                 ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-                ("FONTSIZE", (0, 0), (-1, -1), 9),
+                ("FONTSIZE", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 2),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
             ]
         )
     )
     story.append(dim_table)
-    story.append(Spacer(1, 10))
 
-    story.append(Paragraph("Strengths", styles["Heading3"]))
-    story.append(Paragraph(", ".join(payload["strengths"]) or "-", styles["Normal"]))
-    story.append(Paragraph("Priority gaps", styles["Heading3"]))
-    story.append(Paragraph(", ".join(payload["priority_gaps"]) or "-", styles["Normal"]))
+    story.append(Paragraph("Strengths", styles["Section"]))
+    story.append(Paragraph(", ".join(payload["strengths"]) or "-", styles["Body"]))
+    story.append(Paragraph("Priority gaps", styles["Section"]))
+    story.append(Paragraph(", ".join(payload["priority_gaps"]) or "-", styles["Body"]))
 
-    story.append(Paragraph("Critical gates", styles["Heading3"]))
-    for gate in payload["critical_gates"]:
-        story.append(Paragraph(f"{gate['name']}: {gate['result']}", styles["Normal"]))
+    story.append(Paragraph("Critical gates", styles["Section"]))
+    gates_line = " | ".join(f"{g['name']}: {g['result']}" for g in payload["critical_gates"])
+    story.append(Paragraph(gates_line, styles["Body"]))
 
-    story.append(Paragraph("Recommended actions", styles["Heading3"]))
-    for rec in payload["recommendations"][:6]:
-        story.append(Paragraph(f"- {rec['text']}", styles["Normal"]))
+    story.append(Paragraph("Recommended actions", styles["Section"]))
+    for rec in payload["recommendations"][:5]:
+        story.append(Paragraph(f"- {rec['text']}", styles["Body"]))
 
-    story.append(Paragraph("Potential financing pathways", styles["Heading3"]))
-    for pathway in payload["financing_pathways"][:5]:
-        story.append(Paragraph(f"- {pathway['name']}: {pathway['description']}", styles["Normal"]))
+    story.append(Paragraph("Potential financing pathways", styles["Section"]))
+    for pathway in payload["financing_pathways"][:4]:
+        story.append(Paragraph(f"- {pathway['name']}: {pathway['description']}", styles["Body"]))
 
-    story.append(Spacer(1, 10))
-    story.append(Paragraph("Research disclaimer", styles["Heading3"]))
-    story.append(Paragraph(RESEARCH_PROTOTYPE_DISCLAIMER, styles["Normal"]))
+    story.append(Paragraph("Research disclaimer", styles["Section"]))
+    story.append(Paragraph(RESEARCH_PROTOTYPE_DISCLAIMER, styles["Body"]))
 
     doc.build(story)
     return buffer.getvalue()

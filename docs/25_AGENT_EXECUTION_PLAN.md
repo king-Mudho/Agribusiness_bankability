@@ -180,10 +180,10 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 11 — Reporting
 
-- [ ] Implement PDF generation (ReportLab) per `16_REPORTING_SPECIFICATION.md`.
-- [ ] Implement CSV export with the documented column schema.
-- [ ] Implement "Save on device" offline fallback.
-- [ ] Wire the frontend Print/Save PDF, Export CSV, Save on Device buttons.
+- [x] Implement PDF generation (ReportLab) per `16_REPORTING_SPECIFICATION.md`.
+- [x] Implement CSV export with the documented column schema.
+- [x] Implement "Save on device" offline fallback.
+- [x] Wire the frontend Print/Save PDF, Export CSV, Save on Device buttons.
 
 ## Phase 12 — Feedback & research validation
 
