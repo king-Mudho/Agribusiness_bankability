@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens per docs/23_UI_UX_GUIDELINES.md -- do not invent ad hoc colours in components. */
+:root {
+  --color-header: #0e3b2e;
+  --color-accent: #d6a419;
+  --color-bg: #f4f1e6;
+  --color-surface: #ffffff;
+  --color-border: #e2ddc9;
+  --color-success: #4c8c5b;
+  --color-warning: #d99a2b;
+  --color-danger: #c1503f;
+  --color-text: #16241e;
+  --color-text-muted: #6b6b63;
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
