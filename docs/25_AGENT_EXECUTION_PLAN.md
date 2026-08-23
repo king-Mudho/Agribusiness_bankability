@@ -154,12 +154,12 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 9 — Results screen UI
 
-- [ ] Build the score hero, dimension radar/bar chart, strengths, priority gaps, gate
+- [x] Build the score hero, dimension radar/bar chart, strengths, priority gaps, gate
       status list, action plan, financing pathway cards and certificate panel per
       `15_DASHBOARD_SPECIFICATION.md`.
-- [ ] Confirm the displayed score is read from the API response, never recomputed
+- [x] Confirm the displayed score is read from the API response, never recomputed
       client-side.
-- [ ] Add the required disclaimer text verbatim per `18_DATA_PRIVACY.md`.
+- [x] Add the required disclaimer text verbatim per `18_DATA_PRIVACY.md`.
 
 ## Phase 10 — Executive / research dashboard UI
 

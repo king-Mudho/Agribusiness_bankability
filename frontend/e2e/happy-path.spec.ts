@@ -59,4 +59,12 @@ test("full assessment happy path: intake -> consent -> 24 questions -> gates -> 
   await submitButton.click();
 
   await expect(page).toHaveURL(/\/results\//, { timeout: 15000 });
+
+  // Results screen renders real, backend-sourced content -- all responses
+  // were "To a large extent" (score_value 75) across the board, so the ABI
+  // score must be exactly 75 and the band Finance Ready with Conditions.
+  await expect(page.getByText("75", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Finance Ready with Conditions").first()).toBeVisible();
+  await expect(page.getByText("Bankability Certificate")).toBeVisible();
+  await expect(page.getByText(/Research prototype:/)).toBeVisible();
 });
