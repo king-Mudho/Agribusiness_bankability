@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from apps.assessments.models import Assessment
@@ -27,6 +28,12 @@ class EvidenceRecord(models.Model):
 
     class Meta:
         ordering = ["id"]
+
+    def clean(self):
+        if bool(self.question_id) == bool(self.dimension_id):
+            raise ValidationError(
+                "EvidenceRecord must reference exactly one of question or dimension."
+            )
 
     def __str__(self):
         target = self.question.code if self.question_id else self.dimension.code

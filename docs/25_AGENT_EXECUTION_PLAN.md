@@ -77,10 +77,10 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 4 — Critical gates & evidence
 
-- [ ] Implement gate-result capture and the overall-status derivation logic per
+- [x] Implement gate-result capture and the overall-status derivation logic per
       `11_CRITICAL_GATES.md`.
-- [ ] Implement evidence-level capture per question/dimension.
-- [ ] Unit test the three overall-status branches (Ready / Further preparation required
+- [x] Implement evidence-level capture per question/dimension.
+- [x] Unit test the three overall-status branches (Ready / Further preparation required
       / Not currently bankable).
 
 ## Phase 5 — Recommendation & financing pathway engines
