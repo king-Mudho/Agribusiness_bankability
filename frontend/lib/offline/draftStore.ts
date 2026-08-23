@@ -19,6 +19,9 @@ export function emptyDraft(assessmentId: string, enterpriseId: string | null = n
   return {
     assessmentId,
     enterpriseId,
+    enterpriseDraft: {},
+    consentGiven: false,
+    frameworkVersionLabel: null,
     currentStep: 0,
     responses: {},
     gates: {},

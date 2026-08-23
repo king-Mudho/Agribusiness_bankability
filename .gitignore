@@ -27,3 +27,9 @@ frontend/next-env.d.ts
 
 # Claude Code local session state
 .claude/
+
+# Playwright / TypeScript build artifacts
+frontend/test-results/
+frontend/playwright-report/
+frontend/tsconfig.tsbuildinfo
+frontend/.tsbuildinfo

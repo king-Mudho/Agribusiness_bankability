@@ -27,11 +27,16 @@ class AssessmentSerializer(serializers.ModelSerializer):
 
 
 class AssessmentCreateSerializer(serializers.ModelSerializer):
+    # Accepted/returned by version_label (e.g. "0.1"), matching the
+    # GET /frameworks/{version}/ URL convention -- not the internal PK.
+    framework_version = serializers.SlugRelatedField(
+        slug_field="version_label", queryset=FrameworkVersion.objects.all(), required=False
+    )
+
     class Meta:
         model = Assessment
         fields = ["id", "enterprise", "framework_version", "status", "offline_created"]
         read_only_fields = ["id", "status"]
-        extra_kwargs = {"framework_version": {"required": False}}
 
     def create(self, validated_data):
         if "framework_version" not in validated_data:

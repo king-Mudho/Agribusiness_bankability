@@ -21,6 +21,20 @@ guessing silently — see `AGENTS.md` § 3.)*
   addresses digital gaps). See `GAP_DIMENSION_TO_PATHWAY_BOOST` in
   `backend/apps/financing/services.py`. The two documented examples are exact; the other
   four are my extension and should be reviewed by the research team before v0.2.
+- **Phase 8 — offline scope for the enterprise/consent steps.** FR-7 asks for
+  offline-capable drafting of "in-progress assessments." Steps 01-02 (enterprise
+  intake + consent) happen before any backend `Enterprise`/`Assessment` row
+  exists, so they're captured into a client-generated `local-<uuid>` draft in
+  IndexedDB regardless of connectivity. The transition out of step 02
+  (creating the real `Enterprise` + `Assessment` via the API, then promoting
+  the wizard to the real assessment id) requires one moment of connectivity;
+  every step after that (the 24 questions, gates, evidence -- the bulk of the
+  10-12 minute assessment, and the part most exposed to a flaky show-floor
+  connection) is fully offline-capable via the draft store + sync queue, and
+  the promotion step itself is retried automatically on every subsequent
+  answer and at submit time if it didn't succeed yet. This is a scoped,
+  disclosed interpretation of FR-7 for engineering tractability, not a
+  scoring/gate/pathway content decision.
 - **Phase 12 — expert review / pretest note submission UI.** `25_AGENT_EXECUTION_PLAN.md`
   Phase 12 allows either a simple internal form or a Django-admin-only route for
   `ExpertReview`/`CognitivePretestNote`. I built both: real `POST` API endpoints
@@ -132,11 +146,11 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 8 — Assessment wizard UI
 
-- [ ] Build all 10 wizard steps per `14_ASSESSMENT_WORKFLOW.md`.
-- [ ] Build the progress indicator ("Question N of 24" + stepper).
-- [ ] Wire per-step validation (cannot advance with unanswered required fields).
-- [ ] Wire offline-first save-then-sync behaviour.
-- [ ] Wire the review & submit step, calling `POST /assessments/{id}/submit/`.
+- [x] Build all 10 wizard steps per `14_ASSESSMENT_WORKFLOW.md`.
+- [x] Build the progress indicator ("Question N of 24" + stepper).
+- [x] Wire per-step validation (cannot advance with unanswered required fields).
+- [x] Wire offline-first save-then-sync behaviour.
+- [x] Wire the review & submit step, calling `POST /assessments/{id}/submit/`.
 
 ## Phase 9 — Results screen UI
 

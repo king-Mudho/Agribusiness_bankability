@@ -21,6 +21,9 @@ export interface WizardEvidence {
 export interface DraftAssessment {
   assessmentId: string;
   enterpriseId: string | null;
+  enterpriseDraft: Record<string, unknown>;
+  consentGiven: boolean;
+  frameworkVersionLabel: string | null;
   currentStep: number;
   responses: Record<string, WizardResponse>;
   gates: Record<string, WizardGate>;

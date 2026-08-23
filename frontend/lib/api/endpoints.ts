@@ -21,9 +21,25 @@ export const enterprisesApi = {
     apiClient.patch<Enterprise>(`/enterprises/${id}/`, { profile: { consent_given: consentGiven } }),
 };
 
+interface FrameworkVersionSummary {
+  version_label: string;
+  status: "DRAFT" | "ACTIVE" | "ARCHIVED";
+  effective_from: string;
+}
+
 export const frameworksApi = {
+  listVersions: () =>
+    apiClient.get<{ results: FrameworkVersionSummary[] }>("/frameworks/"),
   getDefinition: (versionLabel: string) =>
     apiClient.get<FrameworkDefinition>(`/frameworks/${versionLabel}/`),
+  getActiveDefinition: async () => {
+    const list = await apiClient.get<{ results: FrameworkVersionSummary[] }>("/frameworks/");
+    const active = list.results.find((v) => v.status === "ACTIVE") ?? list.results[0];
+    if (!active) {
+      throw new Error("No framework version is available from the API.");
+    }
+    return apiClient.get<FrameworkDefinition>(`/frameworks/${active.version_label}/`);
+  },
 };
 
 export const assessmentsApi = {
