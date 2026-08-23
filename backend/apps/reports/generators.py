@@ -127,7 +127,7 @@ def _csv_headers(assessment):
     headers += [f"{d.code}_score" for d in dimensions]
     headers += ["abi_total_score", "readiness_band_code"]
     headers += [f"{g.code}_result" for g in gates]
-    headers += ["evidence_coverage_percent"]
+    headers += ["evidence_coverage_percent", "disclaimer"]
     return headers, questions, dimensions, gates
 
 
@@ -163,6 +163,7 @@ def generate_csv_report(assessment) -> str:
     row["evidence_coverage_percent"] = (
         float(abi_score.evidence_coverage_percent) if abi_score else ""
     )
+    row["disclaimer"] = RESEARCH_PROTOTYPE_DISCLAIMER
 
     buffer = io.StringIO()
     writer = csv.DictWriter(buffer, fieldnames=headers)

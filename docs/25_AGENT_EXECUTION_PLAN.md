@@ -194,10 +194,10 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 13 — Privacy & audit
 
-- [ ] Confirm every disclaimer from `18_DATA_PRIVACY.md` appears on every required
+- [x] Confirm every disclaimer from `18_DATA_PRIVACY.md` appears on every required
       screen and export.
-- [ ] Confirm consent capture blocks assessment persistence until given.
-- [ ] Confirm `AuditLog` entries are created for the actions listed in
+- [x] Confirm consent capture blocks assessment persistence until given.
+- [x] Confirm `AuditLog` entries are created for the actions listed in
       `18_DATA_PRIVACY.md`.
 
 ## Phase 14 — Testing pass

@@ -5,3 +5,6 @@ class FrameworksConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.frameworks"
     label = "frameworks"
+
+    def ready(self):
+        from . import signals  # noqa: F401

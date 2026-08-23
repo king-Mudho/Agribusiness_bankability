@@ -38,6 +38,16 @@ class AssessmentCreateSerializer(serializers.ModelSerializer):
         fields = ["id", "enterprise", "framework_version", "status", "offline_created"]
         read_only_fields = ["id", "status"]
 
+    def validate_enterprise(self, enterprise):
+        # docs/18_DATA_PRIVACY.md: no assessment data is persisted beyond a
+        # local draft until the enterprise's consent checkbox is confirmed.
+        profile = getattr(enterprise, "profile", None)
+        if profile is None or not profile.consent_given:
+            raise serializers.ValidationError(
+                "Consent must be given (EnterpriseProfile.consent_given) before starting an assessment."
+            )
+        return enterprise
+
     def create(self, validated_data):
         if "framework_version" not in validated_data:
             validated_data["framework_version"] = (

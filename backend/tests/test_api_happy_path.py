@@ -124,6 +124,9 @@ def test_full_happy_path(api_client, seeded_db):
 def test_submit_rejects_incomplete_assessment(api_client, seeded_db):
     resp = api_client.post("/api/v1/enterprises/", _enterprise_payload(), format="json")
     enterprise_id = resp.data["id"]
+    api_client.patch(
+        f"/api/v1/enterprises/{enterprise_id}/", {"profile": {"consent_given": True}}, format="json"
+    )
     resp = api_client.post("/api/v1/assessments/", {"enterprise": enterprise_id}, format="json")
     assessment_id = resp.data["id"]
 
@@ -141,6 +144,9 @@ def test_submit_rejects_incomplete_assessment(api_client, seeded_db):
 def test_results_before_scoring_returns_409(api_client, seeded_db):
     resp = api_client.post("/api/v1/enterprises/", _enterprise_payload(), format="json")
     enterprise_id = resp.data["id"]
+    api_client.patch(
+        f"/api/v1/enterprises/{enterprise_id}/", {"profile": {"consent_given": True}}, format="json"
+    )
     resp = api_client.post("/api/v1/assessments/", {"enterprise": enterprise_id}, format="json")
     assessment_id = resp.data["id"]
 

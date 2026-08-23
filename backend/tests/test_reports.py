@@ -6,6 +6,7 @@ import pytest
 
 from apps.assessments.models import Assessment
 from apps.reports.generators import generate_csv_report, generate_pdf_report
+from config.disclaimers import RESEARCH_PROTOTYPE_DISCLAIMER
 
 EXPECTED_CSV_HEADERS = [
     "enterprise_name",
@@ -53,6 +54,7 @@ EXPECTED_CSV_HEADERS = [
     "market_revenue_opportunity_result",
     "fraud_default_concerns_result",
     "evidence_coverage_percent",
+    "disclaimer",
 ]
 
 
@@ -83,3 +85,4 @@ def test_csv_report_matches_documented_column_schema(seeded_db):
     assert row_dict["framework_version"] == "0.1"
     assert row_dict["readiness_band_code"] == "finance_ready_conditions"
     assert row_dict["fin_01"] != ""
+    assert row_dict["disclaimer"] == RESEARCH_PROTOTYPE_DISCLAIMER

@@ -63,6 +63,8 @@ def upsert_gates(assessment: Assessment, items: list[dict]) -> list[CriticalGate
     if unknown:
         raise UnknownCodeError("gate", unknown)
 
+    from apps.audit.utils import log_action
+
     saved = []
     for item in items:
         gate = gates_by_code[item["gate_code"]]
@@ -72,6 +74,11 @@ def upsert_gates(assessment: Assessment, items: list[dict]) -> list[CriticalGate
             defaults={"result": item["result"], "note": item.get("note", "")},
         )
         saved.append(result)
+        log_action(
+            "assessment.gate_recorded",
+            assessment,
+            {"gate": gate.code, "result": item["result"]},
+        )
     return saved
 
 
