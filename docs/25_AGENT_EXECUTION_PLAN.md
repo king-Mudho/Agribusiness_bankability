@@ -112,14 +112,14 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 6 — REST API & auth
 
-- [ ] Implement every endpoint listed in `06_API_ARCHITECTURE.md`.
-- [ ] Implement JWT auth (`djangorestframework-simplejwt`) for internal users.
-- [ ] Implement `IsInternalUser` / `IsResearcherOrAdmin` permission classes; apply to the
+- [x] Implement every endpoint listed in `06_API_ARCHITECTURE.md`.
+- [x] Implement JWT auth (`djangorestframework-simplejwt`) for internal users.
+- [x] Implement `IsInternalUser` / `IsResearcherOrAdmin` permission classes; apply to the
       correct endpoints per the access matrix in `18_DATA_PRIVACY.md`.
-- [ ] Wire up `drf-spectacular`; confirm `/api/schema/` and `/api/docs/` work.
-- [ ] Confirm the `/research/dashboard/` response never includes `Enterprise.name` or
+- [x] Wire up `drf-spectacular`; confirm `/api/schema/` and `/api/docs/` work.
+- [x] Confirm the `/research/dashboard/` response never includes `Enterprise.name` or
       unbanded financial figures — add an explicit test for this.
-- [ ] Write API tests for the full happy path (create enterprise → start assessment →
+- [x] Write API tests for the full happy path (create enterprise → start assessment →
       submit responses → submit gates → submit → fetch results).
 
 ## Phase 7 — Frontend scaffold & PWA

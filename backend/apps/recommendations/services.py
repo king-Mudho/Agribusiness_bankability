@@ -34,6 +34,13 @@ def select_gap_dimensions(
     return sorted(dimension_scores, key=lambda ds: ds.raw_average)[:minimum]
 
 
+def select_strength_dimensions(dimension_scores, count: int = 3):
+    """The two to three highest-scoring dimensions, per
+    docs/15_DASHBOARD_SPECIFICATION.md § Results screen.
+    """
+    return sorted(dimension_scores, key=lambda ds: ds.raw_average, reverse=True)[:count]
+
+
 def _urgency(dimension_score, threshold: Decimal = GAP_SCORE_THRESHOLD) -> Decimal:
     """Bigger dimension weight and bigger gap below the threshold sort first."""
     gap = threshold - dimension_score.raw_average

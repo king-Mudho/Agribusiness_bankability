@@ -1,3 +1,8 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
-urlpatterns = []
+from .views import AssessmentViewSet
+
+router = SimpleRouter(trailing_slash=True)
+router.register("assessments", AssessmentViewSet, basename="assessment")
+
+urlpatterns = router.urls

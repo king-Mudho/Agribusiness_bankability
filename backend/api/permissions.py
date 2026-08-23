@@ -2,6 +2,7 @@ from rest_framework.permissions import BasePermission
 
 INTERNAL_ROLES = {"ADMIN", "RESEARCHER", "DATA_COLLECTOR", "ANALYST", "VIEWER"}
 RESEARCHER_ROLES = {"ADMIN", "RESEARCHER"}
+DASHBOARD_ROLES = {"ADMIN", "RESEARCHER", "ANALYST"}
 
 
 class IsInternalUser(BasePermission):
@@ -24,3 +25,16 @@ class IsResearcherOrAdmin(BasePermission):
             return False
         role = getattr(user, "role", None)
         return bool(role and role.name in RESEARCHER_ROLES)
+
+
+class CanViewAggregateDashboard(BasePermission):
+    """Access matrix (docs/18_DATA_PRIVACY.md): Analyst, Researcher and Admin
+    can view the aggregate dashboard; Data Collector and Viewer cannot.
+    """
+
+    def has_permission(self, request, view):
+        user = request.user
+        if not (user and user.is_authenticated):
+            return False
+        role = getattr(user, "role", None)
+        return bool(role and role.name in DASHBOARD_ROLES)
