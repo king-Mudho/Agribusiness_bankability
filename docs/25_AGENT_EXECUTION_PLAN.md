@@ -124,11 +124,11 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 7 — Frontend scaffold & PWA
 
-- [ ] Implement the route structure from `07_FRONTEND_ARCHITECTURE.md`.
-- [ ] Implement the typed API client in `lib/api/`.
-- [ ] Implement the PWA manifest + service worker (installable, app-shell cached).
-- [ ] Implement `lib/offline/` (IndexedDB draft store + sync queue).
-- [ ] Implement the design tokens from `23_UI_UX_GUIDELINES.md` in Tailwind config.
+- [x] Implement the route structure from `07_FRONTEND_ARCHITECTURE.md`.
+- [x] Implement the typed API client in `lib/api/`.
+- [x] Implement the PWA manifest + service worker (installable, app-shell cached).
+- [x] Implement `lib/offline/` (IndexedDB draft store + sync queue).
+- [x] Implement the design tokens from `23_UI_UX_GUIDELINES.md` in Tailwind config.
 
 ## Phase 8 — Assessment wizard UI
 

@@ -24,3 +24,6 @@ frontend/public/sw.js
 frontend/public/workbox-*.js
 frontend/public/swe-worker*.js
 frontend/next-env.d.ts
+
+# Claude Code local session state
+.claude/
