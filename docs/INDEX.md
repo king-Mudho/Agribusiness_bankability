@@ -33,6 +33,21 @@ below is the required reading order for the Claude Code agent.
 | 25 | `25_AGENT_EXECUTION_PLAN.md` | Phased, checkable build task list |
 | 26 | `26_DEFINITION_OF_DONE.md` | Acceptance criteria |
 
+## Production deployment (agribizframework.com)
+
+Not part of the numbered build spec above — these describe the live
+production deployment at `https://agribizframework.com`, which uses a
+different domain than the rest of this documentation set (see
+`PRODUCTION_ARCHITECTURE.md` § Domain note for why).
+
+| File | What it covers |
+|---|---|
+| `PRODUCTION_ARCHITECTURE.md` | Final architecture, component diagram, rationale |
+| `DEPLOYMENT.md` | Full deployment walkthrough: server, DNS, services, SSL, troubleshooting |
+| `DEPLOYMENT_CHECKLIST.md` | Flat pre/post-deploy verification list |
+
+See also `deploy/README.md` for the deployment scripts themselves.
+
 ## Reading order for humans
 
 Start with `00`, `01`, `02` for context, then `09`–`13` for the actual ABI methodology,

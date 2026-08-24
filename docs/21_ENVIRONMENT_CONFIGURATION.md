@@ -19,9 +19,16 @@ JWT_ACCESS_TOKEN_LIFETIME_MINUTES=30
 JWT_REFRESH_TOKEN_LIFETIME_DAYS=7
 
 CORS_ALLOWED_ORIGINS=https://agribusinessbankability.com,https://www.agribusinessbankability.com
+CSRF_TRUSTED_ORIGINS=https://agribusinessbankability.com,https://www.agribusinessbankability.com
 
 # Celery/Redis intentionally omitted for v0.1 — see 04_TECH_STACK.md
 ```
+
+`CSRF_TRUSTED_ORIGINS` (with scheme) is required by Django's CSRF origin check for
+same-origin POSTs arriving over HTTPS through a reverse proxy (e.g. the Django admin
+login) — see `config/settings/prod.py`, which also sets `SECURE_PROXY_SSL_HEADER` so
+Django recognises HTTPS requests forwarded by Nginx (without it, `SECURE_SSL_REDIRECT`
+would redirect every request in an infinite loop).
 
 ## `frontend/.env.example`
 

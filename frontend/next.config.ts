@@ -29,6 +29,11 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Standalone output bundles only the production-necessary files/deps into
+  // .next/standalone, instead of requiring the full node_modules tree at
+  // runtime -- meaningfully smaller footprint on the small production VPS
+  // (see docs/PRODUCTION_ARCHITECTURE.md).
+  output: "standalone",
 };
 
 export default withPWA(nextConfig);
