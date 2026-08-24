@@ -7,6 +7,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { DashboardFilters, type DashboardFilterValues } from "@/components/dashboard/DashboardFilters";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { LoginForm } from "@/components/dashboard/LoginForm";
+import { enterpriseChoiceLabel } from "@/config/enterpriseChoices";
 import { useAuth } from "@/hooks/useAuth";
 import { researchApi } from "@/lib/api/endpoints";
 
@@ -128,7 +129,7 @@ export function ResearchLenderView() {
           <ul className="flex flex-col gap-1 text-sm">
             {data.by_value_chain.map((row) => (
               <li key={row.value_chain} className="flex justify-between">
-                <span className="text-text">{row.value_chain}</span>
+                <span className="text-text">{enterpriseChoiceLabel(row.value_chain)}</span>
                 <span className="tabular-nums text-text-muted">
                   {row.count} firms - avg {row.average_abi ?? "-"}
                 </span>
@@ -141,7 +142,7 @@ export function ResearchLenderView() {
           <ul className="flex flex-col gap-1 text-sm">
             {data.by_province.map((row) => (
               <li key={row.province} className="flex justify-between">
-                <span className="text-text">{row.province}</span>
+                <span className="text-text">{enterpriseChoiceLabel(row.province)}</span>
                 <span className="tabular-nums text-text-muted">
                   {row.count} firms - avg {row.average_abi ?? "-"}
                 </span>
@@ -157,7 +158,7 @@ export function ResearchLenderView() {
           <ul className="flex flex-col gap-1 text-sm">
             {Object.entries(data.financing_needs_breakdown).map(([type, count]) => (
               <li key={type} className="flex justify-between">
-                <span className="text-text">{type}</span>
+                <span className="text-text">{enterpriseChoiceLabel(type)}</span>
                 <span className="tabular-nums text-text-muted">{count}</span>
               </li>
             ))}

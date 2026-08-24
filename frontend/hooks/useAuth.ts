@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { create } from "zustand";
 
 import { authApi } from "@/lib/api/endpoints";
@@ -16,9 +17,16 @@ interface AuthState {
 /** Zustand (not plain useState) so every component that calls useAuth()
  * observes the same sign-in state -- e.g. the login form and the dashboard
  * that renders beside/after it are different component instances.
+ *
+ * isAuthenticated always starts false, matching what the server renders (no
+ * `window`/localStorage there). Reading localStorage synchronously here
+ * would make the very first client render disagree with the server-rendered
+ * HTML for any returning signed-in user, which React reports as a hydration
+ * mismatch. The useAuth() wrapper below syncs the real value in a
+ * useEffect, which runs after hydration completes.
  */
-export const useAuth = create<AuthState>((set) => ({
-  isAuthenticated: typeof window !== "undefined" ? !!getAccessToken() : false,
+const useAuthStore = create<AuthState>((set) => ({
+  isAuthenticated: false,
   loading: false,
   error: null,
 
@@ -40,3 +48,17 @@ export const useAuth = create<AuthState>((set) => ({
     set({ isAuthenticated: false });
   },
 }));
+
+export function useAuth(): AuthState {
+  const state = useAuthStore();
+
+  useEffect(() => {
+    if (!state.isAuthenticated && getAccessToken()) {
+      useAuthStore.setState({ isAuthenticated: true });
+    }
+    // Only needs to run once, on mount, after hydration.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return state;
+}

@@ -13,6 +13,7 @@ import { CertificatePanel } from "@/components/reports/CertificatePanel";
 import { ReportActions } from "@/components/reports/ReportActions";
 import { Button } from "@/components/ui/Button";
 import { ResearchDisclaimer } from "@/components/shared/ResearchDisclaimer";
+import { enterpriseChoiceLabel } from "@/config/enterpriseChoices";
 import { assessmentsApi, enterprisesApi } from "@/lib/api/endpoints";
 import type { GateResultValue } from "@/types/api";
 
@@ -172,15 +173,17 @@ export function ResultsView({ assessmentId }: { assessmentId: string }) {
               </div>
               <div>
                 <dt className="text-text-muted">Value chain</dt>
-                <dd className="font-medium text-text">{enterprise.value_chain}</dd>
+                <dd className="font-medium text-text">{enterpriseChoiceLabel(enterprise.value_chain)}</dd>
               </div>
               <div>
                 <dt className="text-text-muted">Province</dt>
-                <dd className="font-medium text-text">{enterprise.province}</dd>
+                <dd className="font-medium text-text">{enterpriseChoiceLabel(enterprise.province)}</dd>
               </div>
               <div>
                 <dt className="text-text-muted">Finance sought</dt>
-                <dd className="font-medium text-text">{enterprise.profile?.finance_type_sought}</dd>
+                <dd className="font-medium text-text">
+                  {enterpriseChoiceLabel(enterprise.profile?.finance_type_sought)}
+                </dd>
               </div>
             </dl>
           </section>

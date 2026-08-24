@@ -58,3 +58,20 @@ export const FINANCIER_TYPE_CHOICES = [
   { value: "DEVELOPMENT_FINANCE", label: "Development finance" },
   { value: "OTHER", label: "Other" },
 ];
+
+const ALL_ENTERPRISE_CHOICES = [
+  ...ORGANISATION_TYPE_CHOICES,
+  ...VALUE_CHAIN_CHOICES,
+  ...PROVINCE_CHOICES,
+  ...TURNOVER_BAND_CHOICES,
+  ...FINANCE_TYPE_CHOICES,
+  ...FINANCIER_TYPE_CHOICES,
+];
+
+/** Humanises a raw enum code (e.g. "MASHONALAND_CENTRAL") using the choice
+ * lists above; falls back to the raw code for any value not in this fixed
+ * set of field choices, never for the ABI dimensions/scoring content. */
+export function enterpriseChoiceLabel(value: string | null | undefined): string {
+  if (!value) return "-";
+  return ALL_ENTERPRISE_CHOICES.find((choice) => choice.value === value)?.label ?? value;
+}

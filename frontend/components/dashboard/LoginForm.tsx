@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/Field";
 import { useAuth } from "@/hooks/useAuth";
 
-export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
+export function LoginForm({
+  onSuccess,
+  description = "The Research/Lender aggregate view requires an Analyst, Researcher or Admin account.",
+}: {
+  onSuccess: () => void;
+  description?: string;
+}) {
   const { login, error, loading } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -20,10 +26,7 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="mx-auto flex max-w-sm flex-col gap-4 rounded-lg border border-border bg-surface p-6">
       <h2 className="text-lg font-semibold text-text">Internal sign-in</h2>
-      <p className="text-sm text-text-muted">
-        The Research/Lender aggregate view requires an Analyst, Researcher or Admin
-        account.
-      </p>
+      <p className="text-sm text-text-muted">{description}</p>
       <TextField label="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
       <TextField
         label="Password"

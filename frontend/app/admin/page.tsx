@@ -31,7 +31,10 @@ export default function InternalAdminPage() {
 
       <div className="mx-auto max-w-4xl px-4 py-6">
         {!isAuthenticated ? (
-          <LoginForm onSuccess={() => frameworksQuery.refetch()} />
+          <LoginForm
+            onSuccess={() => frameworksQuery.refetch()}
+            description="Internal / researcher tools (expert review, pretest notes, framework versions) require an Analyst, Researcher or Admin account."
+          />
         ) : (
           <div className="flex flex-col gap-6">
             <div className="flex justify-end">
