@@ -116,3 +116,63 @@ def test_audit_log_records_framework_version_creation(seeded_db):
     assert AuditLog.objects.filter(
         action="framework_version.created", object_id=str(fv.pk)
     ).exists()
+
+
+@pytest.mark.django_db
+def test_enterprise_list_is_not_publicly_readable(seeded_db):
+    """docs/18_DATA_PRIVACY.md / docs/06_API_ARCHITECTURE.md: public respondent
+    flows "must not leak other enterprises' data". A public respondent may
+    only read their own enterprise by id/link -- GET /enterprises/ (list) must
+    not hand every visitor every other enterprise's name and exact finance
+    figures.
+    """
+    from apps.accounts.models import Role, User
+
+    client = APIClient()
+    resp = client.get("/api/v1/enterprises/")
+    assert resp.status_code == 401
+
+    role, _ = Role.objects.get_or_create(name=Role.ANALYST)
+    User.objects.create_user(username="list_analyst", password="TestPass123!", role=role)
+    token = client.post(
+        "/api/v1/auth/token/", {"username": "list_analyst", "password": "TestPass123!"}, format="json"
+    ).data["access"]
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+    resp = client.get("/api/v1/enterprises/")
+    assert resp.status_code == 403
+
+    admin_role, _ = Role.objects.get_or_create(name=Role.ADMIN)
+    User.objects.create_user(username="list_admin", password="TestPass123!", role=admin_role)
+    admin_token = client.post(
+        "/api/v1/auth/token/", {"username": "list_admin", "password": "TestPass123!"}, format="json"
+    ).data["access"]
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {admin_token}")
+    resp = client.get("/api/v1/enterprises/")
+    assert resp.status_code == 200
+
+    # Retrieving one's own enterprise by id, and creating a new one, stay
+    # public -- only bulk listing is locked down.
+    client.credentials()
+    resp = client.post(
+        "/api/v1/enterprises/",
+        {
+            "name": "Retrieve Check Farm",
+            "organisation_type": "COOPERATIVE",
+            "value_chain": "GRAIN",
+            "province": "HARARE",
+            "district": "",
+            "years_operating": 2,
+            "workers_count": 4,
+            "turnover_band": "UNDER_10K",
+            "profile": {
+                "finance_required_amount": "1000.00",
+                "finance_type_sought": "WORKING_CAPITAL",
+                "preferred_financier_type": "BANK",
+            },
+        },
+        format="json",
+    )
+    assert resp.status_code == 201
+    enterprise_id = resp.data["id"]
+    resp = client.get(f"/api/v1/enterprises/{enterprise_id}/")
+    assert resp.status_code == 200
