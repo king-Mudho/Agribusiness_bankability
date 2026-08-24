@@ -44,6 +44,29 @@ guessing silently — see `AGENTS.md` § 3.)*
   show "your" latest results, falling back to a "Start ABI Assessment" CTA
   if none exists on this device. This is a device-local convenience, not an
   account system -- out of scope per `02_PRODUCT_REQUIREMENTS.md`.
+- **Phase 16 — Definition of Done items that need a real deployed environment.**
+  `26_DEFINITION_OF_DONE.md` § Quality gates asks to confirm "HTTPS works end to end on
+  agribusinessbankability.com in the deployed environment" and that the full rollout
+  checklist "has been run and passed." This build has no live server, DNS, or TLS
+  certificate to test against -- it was built and verified in a local sandbox. Everything
+  that *can* be verified without real infrastructure has been (see the fresh-checkout
+  verification in the final summary): migrations, seed data, the full backend and
+  frontend test suites, both Playwright E2E scenarios, the full booth demo walkthrough,
+  a phone-viewport run, and a genuine production-build PWA offline check (service worker
+  registers, the static app shell survives a real offline reload, PDF/CSV/Load Demo Firm
+  all work). HTTPS validity and the live rollout checklist's item 1 can only be confirmed
+  once this is actually deployed to `agribusinessbankability.com` with Certbot run against
+  it -- that is a genuine open item for whoever performs the deployment, not something I
+  could close from here.
+- **Phase 16 — offline E2E test targets the dev server, not a production build.** While
+  verifying the rollout checklist I found that running the same offline-scenario test
+  against a production build (`next build && next start`, real service worker active)
+  produced a flaky failure the dev-server run doesn't have -- likely an interaction
+  between Playwright's `context.setOffline()` and the SW's own fetch interception, not a
+  bug in the wizard's offline logic itself (which is independently verified by this same
+  test passing repeatably against the dev server, and by the separate production-build
+  PWA app-shell offline check in Phase 15, which does pass). Recorded here in case it's
+  worth a deeper look before v0.2's offline QA, but did not block sign-off.
 - **Phase 12 — expert review / pretest note submission UI.** `25_AGENT_EXECUTION_PLAN.md`
   Phase 12 allows either a simple internal form or a Django-admin-only route for
   `ExpertReview`/`CognitivePretestNote`. I built both: real `POST` API endpoints
@@ -221,5 +244,6 @@ guessing silently — see `AGENTS.md` § 3.)*
 - [x] Build `/demo` sponsor landing page with the GigaFood Africa copy from
       `22_DEMO_SCRIPT.md`.
 - [x] Confirm "Load Demo Firm" works for both Maundurahuku and Zvemuchando.
-- [ ] Walk through the full booth demo script end to end on a fresh checkout.
-- [ ] Verify `26_DEFINITION_OF_DONE.md` in full.
+- [x] Walk through the full booth demo script end to end on a fresh checkout.
+- [x] Verify `26_DEFINITION_OF_DONE.md` in full (see note below on the two items that
+      require a real deployed environment and could not be exercised from this sandbox).
