@@ -162,11 +162,35 @@ systemctl restart agribiz-backend
 systemctl restart agribiz-frontend
 
 # ------------------------------------------------------------------- nginx
+#
+# Once certbot has run, the installed config is no longer the plain base
+# template in this repo -- certbot --nginx --redirect rewrites it in place
+# to add the :443 server block, the certificate paths and the redirect (see
+# docs/PRODUCTION_ARCHITECTURE.md "The 127.0.0.1 lesson"). Blindly
+# reinstalling the repo's base template on every deploy would silently
+# destroy that block and take HTTPS down -- this happened for real during
+# this deployment's own second run. So: only install the template outright
+# on a first deploy (no site config present yet, or one without a
+# certbot-managed block); after that, just validate whatever's live and
+# leave it alone. If nginx/agribizframework.conf changes and needs to reach
+# the server, that's a deliberate, separate step (copy it in, then re-run
+# `certbot --nginx -d ... --redirect` to regenerate the HTTPS block on top
+# of it) -- not something that should happen implicitly on every deploy.
 
-log "Installing and validating nginx config"
-install -m 644 "$APP_DIR/nginx/agribizframework.conf" /etc/nginx/conf.d/agribizframework.conf
-nginx -t || die "nginx config is invalid -- not reloading. Fix nginx/agribizframework.conf and re-run."
-systemctl reload nginx 2>/dev/null || systemctl start nginx
+NGINX_CONF=/etc/nginx/conf.d/agribizframework.conf
+if [[ -f "$NGINX_CONF" ]] && grep -q "managed by Certbot" "$NGINX_CONF"; then
+    log "nginx config already certbot-managed -- validating in place, not overwriting"
+    nginx -t || die "The currently installed nginx config is invalid. If you changed
+     nginx/agribizframework.conf and need it applied, see docs/DEPLOYMENT.md
+     § Nginx for the (deliberate, separate) reinstall + re-certbot steps."
+else
+    log "Installing nginx config (first deploy -- no certbot block yet)"
+    install -m 644 "$APP_DIR/nginx/agribizframework.conf" "$NGINX_CONF"
+    nginx -t || die "nginx config is invalid -- not reloading. Fix nginx/agribizframework.conf and re-run."
+    systemctl reload nginx 2>/dev/null || systemctl start nginx
+    warn "This is a fresh nginx config with no HTTPS block yet. Run certbot now:"
+    warn "  certbot --nginx -d agribizframework.com -d www.agribizframework.com --redirect"
+fi
 
 # ------------------------------------------------------------------- verify
 

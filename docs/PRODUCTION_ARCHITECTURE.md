@@ -133,6 +133,15 @@ and the health check itself is testing the wrong thing.
   `curl -H "Host: agribizframework.com" http://127.0.0.1/` before a certificate exists.
   See `deploy/deploy.sh`'s `check()` function and `deploy/check-production.sh`.
 
+**A second, related lesson found live during this deployment, not carried over from
+MSU:** "let Certbot own the HTTPS block" has to be enforced on every deploy, not just
+the first one. `deploy.sh` originally reinstalled the repo's plain base template
+unconditionally on every run, which silently deleted Certbot's `:443` block the second
+time it ran — `nginx -t` still passed (an HTTP-only config is perfectly valid on its
+own), so nothing in the script itself caught it; only actually polling the live site
+during a repeat deploy did. See `docs/DEPLOYMENT_CHECKLIST.md` § Fixed during this
+deployment (item 0) for the full story and how it was verified fixed.
+
 ## Domain note
 
 Every other file under `docs/` (starting with `AGENTS.md` ground rule 8) documents this

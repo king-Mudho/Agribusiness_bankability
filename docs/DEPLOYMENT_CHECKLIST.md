@@ -181,6 +181,37 @@ independently checked against the real server/site).
 Real problems found only by actually running the deployment end to end, not
 caught by local testing/review beforehand:
 
+0. **CRITICAL — every `deploy.sh` run after the first silently took HTTPS down.**
+   The nginx-install step unconditionally reinstalled
+   `nginx/agribizframework.conf` (the plain, HTTP-only base template from
+   this repo) on *every* run. But after the first deploy, the *live* config
+   at `/etc/nginx/conf.d/agribizframework.conf` is no longer that template —
+   `certbot --nginx --redirect` had rewritten it in place to add the `:443`
+   server block, the certificate paths and the redirect. Reinstalling the
+   base template blindly overwrote that rewrite and deleted the `:443`
+   block entirely, with no error from `nginx -t` (the resulting HTTP-only
+   config is perfectly valid on its own). Caught by deliberately running
+   `deploy.sh` a second time as an idempotency/repeatability check and then
+   testing the *live* site afterward (not just trusting the script's own
+   "Deploy complete" — its own health check only tests `:80`/plain HTTP, so
+   it didn't catch this either): `https://agribizframework.com/` went from
+   returning `200` to `curl: (7) Could not connect to server` — nginx
+   itself was still running, just no longer listening on `:443` at all.
+   Fixed properly, not just patched around: `deploy.sh` now checks whether
+   the installed config already carries `# managed by Certbot` and, if so,
+   only validates it in place rather than overwriting it — nginx config
+   changes reaching the server is a separate, deliberate step (see
+   `docs/DEPLOYMENT.md` § Nginx), never an implicit side effect of a
+   routine app deploy. **Verified by running `deploy.sh` a third time** with
+   the fix in place, polling `https://agribizframework.com/` continuously
+   throughout the ~20+ minute build, and confirming the run's own output
+   changed to "nginx config already certbot-managed -- validating in place,
+   not overwriting" with a final health check of "through nginx (https)
+   200" — the site never went down on this run. This is the single most
+   important finding of this deployment: it directly hit the "deployment
+   must be repeatable" requirement, and would have silently broken the live
+   site on every future update if it had shipped as originally written.
+
 1. **`DJANGO_SETTINGS_MODULE` inside `.env` had no effect on ad-hoc `manage.py`
    invocations.** `manage.py` calls `os.environ.setdefault("DJANGO_SETTINGS_MODULE",
    "config.settings.dev")` before `.env` is ever read, so the first `deploy.sh`
