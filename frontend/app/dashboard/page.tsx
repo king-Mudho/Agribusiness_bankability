@@ -27,7 +27,7 @@ export default function DashboardPage() {
         <div className="mb-6 inline-flex rounded-md border border-border bg-surface p-1">
           <button
             className={cn(
-              "rounded px-4 py-2 text-sm font-medium",
+              "min-h-11 rounded px-4 py-2 text-sm font-medium",
               mode === "agribusiness" ? "bg-header text-white" : "text-text"
             )}
             onClick={() => setMode("agribusiness")}
@@ -36,7 +36,7 @@ export default function DashboardPage() {
           </button>
           <button
             className={cn(
-              "rounded px-4 py-2 text-sm font-medium",
+              "min-h-11 rounded px-4 py-2 text-sm font-medium",
               mode === "research" ? "bg-header text-white" : "text-text"
             )}
             onClick={() => setMode("research")}

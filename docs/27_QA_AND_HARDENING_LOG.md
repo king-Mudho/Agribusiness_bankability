@@ -21,6 +21,18 @@ Date started: 2026-08-24.
    Backend/frontend/lint/typecheck/build were otherwise fully green on first run — see
    "Fixed" below.
 
+2. **Same cold-compile flake also present in `e2e/offline-scenario.spec.ts`,
+   missed in the first pass.** Its very first assertion (`goto("/assessment/new")`
+   then `toHaveURL(/\/assessment\/local-/)`) had the identical unguarded default
+   5s timeout as the happy-path spec's. Caught during the Step 7 regression
+   re-run, when a fresh dev-server restart made both specs cold again and
+   `happy-path.spec.ts` failed even at its already-fixed 15s timeout (this
+   machine was under heavy load at the time -- `next dev` itself took 40.7s to
+   report "Ready" per its own log, and a plain `curl` of an already-compiled
+   page took ~10s -- so 15s wasn't always enough headroom). Bumped both specs'
+   timeout to 20s and re-verified twice in a row after letting the server
+   settle (15.1s/15.5s and 22.4s/14.9s runs, both fully green) -- see "Fixed".
+
 ## Manual bugs found
 
 1. **CRITICAL — `GET /api/v1/enterprises/` (list) was publicly readable, no auth
@@ -84,7 +96,31 @@ Date started: 2026-08-24.
    `components/dashboard/ResearchLenderView.tsx`'s "By value chain", "By province"
    and "Financing needs breakdown" panels on the Research/Lender dashboard.
 
-2. **`PilotFeedbackForm` had no error/retry state for its framework fetch, and
+2. **Dimension radar chart clips a label off-screen on a 375px mobile viewport.**
+   `DimensionRadarChart.tsx` used `outerRadius="62%"` with no margin, sized inside
+   a `h-72 w-full` container. On the results screen at 375px width, the SVG
+   plot area itself stayed within bounds (measured 309px wide, x: 33-342), but
+   the "Governance and Management" axis label text (the longest dimension
+   name) rendered from x=269 to x=403 -- 28px past the 375px viewport edge and
+   61px past the chart's own container -- because SVG text has no implicit
+   clipping/wrapping and Recharts positions `PolarAngleAxis` labels by radius
+   from center, not by available box width. Confirmed by measuring every tick
+   label's bounding rect via injected JS (not visible via screenshot in this
+   environment) -- `document.documentElement.scrollWidth` stayed 375 the whole
+   time (no page-level horizontal scroll was triggered), so this would have
+   silently cut off part of a dimension name for a real mobile user with no
+   visual indication anything was missing.
+
+3. **Consent checkbox touch target is 24x24px, below the documented ~44px minimum.**
+   `components/ui/Checkbox.tsx` (shared component; the consent-gate checkbox on the
+   wizard's Consent step is its main use) rendered `RadixCheckbox.Root` at a fixed
+   `h-6 w-6` (24px) with no hit-area padding. `docs/23_UI_UX_GUIDELINES.md`
+   explicitly requires "Minimum touch target ~44px on mobile controls", and this
+   is the control gating whether a respondent can even proceed past consent on
+   the show-floor wizard. Measured live at 375px width: `getBoundingClientRect()`
+   on the checkbox returned `{w: 24, h: 24}`.
+
+4. **`PilotFeedbackForm` had no error/retry state for its framework fetch, and
    wasn't wrapped in a `<main>` landmark** like every other top-level screen in
    the app. If `GET /frameworks/{version}/` failed, the form would just render
    with the dimension dropdown silently empty instead of a clear error and a
@@ -98,6 +134,10 @@ Date started: 2026-08-24.
    spec. Verified against a genuinely cold `next dev` server (fresh `.next` cache, process
    killed and restarted) — test now passes in ~22s on cold compile and ~10s once warm; full
    Playwright suite (happy-path + offline) passes twice in a row after the fix.
+   **Update (Step 7 regression pass):** the identical unguarded default-timeout bug was
+   found in `e2e/offline-scenario.spec.ts` too (missed in the first pass), and 15s proved
+   marginal under real machine load. Fixed the same way in both specs, timeout raised to
+   20s; re-verified with two consecutive full-suite runs after the dev server settled.
 
 ### Automated sweep summary (Step 3), first pass
 
@@ -182,6 +222,30 @@ Date started: 2026-08-24.
    for landmark consistency with every other top-level screen. `tsc --noEmit`
    and `eslint .` stayed clean; verified live that the form still renders and
    submits correctly.
+
+8. **Radar chart mobile label clipping (see "Manual bugs found" #2).**
+   `components/charts/DimensionRadarChart.tsx`: reduced `outerRadius` from
+   `62%` to `42%` and added an explicit `margin={{ top: 24, right: 56, bottom:
+   24, left: 56 }}` to the `RadarChart`, giving the polar-angle-axis labels
+   enough inset to fit inside both the card and the viewport. Verified by
+   measuring every axis-label tick's bounding rect at 375px width before and
+   after: "Governance and Management" went from `right: 403` (28px past the
+   375px viewport) to `right: 364` (11px of margin); re-checked the whole page
+   for any element right/left edge outside the viewport at both 375px and
+   desktop width -- zero after the fix (was non-zero before, on mobile only).
+   `tsc --noEmit` and `eslint .` stayed clean.
+
+9. **Consent checkbox touch target (see "UI/UX issues found" #3).**
+   `components/ui/Checkbox.tsx`: `RadixCheckbox.Root` is now the ~44px tappable
+   hit area (`h-11 w-11` with a negative margin so it doesn't push surrounding
+   layout), with a smaller `h-6 w-6` visually-styled `<span>` centred inside it
+   for the checkbox's compact appearance -- checked-state styling moved to that
+   inner span via a Tailwind `group-data-[state=checked]:` selector keyed off
+   the Root. Verified live at 375px width: hit area now measures `{w: 44, h:
+   44}`; clicking still toggles `data-state` correctly, checked-state styling
+   (`background-color: rgb(14, 59, 46)`, the header/accent green) still
+   applies, and the Consent step's "Continue" button still enables/disables
+   correctly. `tsc --noEmit` and `eslint .` stayed clean.
 
 ## Known issues / needs human input
 

@@ -5,7 +5,11 @@ test("offline scenario: answer mid-wizard while offline, reconnect, sync and sub
   context,
 }) => {
   await page.goto("/assessment/new");
-  await expect(page).toHaveURL(/\/assessment\/local-/);
+  // A cold Next.js dev server compiles /assessment/new and /assessment/[id]
+  // on demand on the very first hit, which can exceed the default 5s expect
+  // timeout -- match the longer timeout used for the other cross-navigation
+  // assertions below.
+  await expect(page).toHaveURL(/\/assessment\/local-/, { timeout: 20000 });
 
   // Enterprise intake + consent while online -- this is the one moment that
   // needs connectivity to create the backend Enterprise/Assessment (see

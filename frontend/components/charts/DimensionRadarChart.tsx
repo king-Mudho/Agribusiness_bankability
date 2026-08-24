@@ -17,7 +17,7 @@ export function DimensionRadarChart({ dimensionScores }: { dimensionScores: Dime
   return (
     <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <RadarChart data={data} outerRadius="62%">
+        <RadarChart data={data} outerRadius="42%" margin={{ top: 24, right: 56, bottom: 24, left: 56 }}>
           <PolarGrid stroke="var(--color-border)" />
           <PolarAngleAxis
             dataKey="dimension"

@@ -17,20 +17,28 @@ export function Checkbox({
   label: string;
 }) {
   return (
-    <div className="flex items-start gap-3">
+    <div className="flex items-start gap-2">
+      {/* Root is the ~44px tappable hit area; the inner span is the compact visual box. */}
       <RadixCheckbox.Root
         id={id}
         checked={checked}
         onCheckedChange={(v) => onCheckedChange(v === true)}
         className={cn(
-          "mt-0.5 flex h-6 w-6 min-w-[24px] items-center justify-center rounded border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-header data-[state=checked]:bg-header data-[state=checked]:border-header"
+          "group -m-2.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-header"
         )}
       >
-        <RadixCheckbox.Indicator>
-          <Check className="h-4 w-4 text-white" />
-        </RadixCheckbox.Indicator>
+        <span
+          className={cn(
+            "flex h-6 w-6 items-center justify-center rounded border border-border bg-surface",
+            "group-data-[state=checked]:border-header group-data-[state=checked]:bg-header"
+          )}
+        >
+          <RadixCheckbox.Indicator>
+            <Check className="h-4 w-4 text-white" />
+          </RadixCheckbox.Indicator>
+        </span>
       </RadixCheckbox.Root>
-      <label htmlFor={id} className="text-sm text-text">
+      <label htmlFor={id} className="pt-2.5 text-sm text-text">
         {label}
       </label>
     </div>

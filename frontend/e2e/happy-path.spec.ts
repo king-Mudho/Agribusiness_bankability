@@ -8,7 +8,7 @@ test("full assessment happy path: intake -> consent -> 24 questions -> gates -> 
   // on demand on the very first hit, which can exceed the default 5s expect
   // timeout -- match the longer timeout already used for the other
   // cross-navigation assertions below.
-  await expect(page).toHaveURL(/\/assessment\/local-/, { timeout: 15000 });
+  await expect(page).toHaveURL(/\/assessment\/local-/, { timeout: 20000 });
 
   // Step 1: Enterprise intake.
   await page.getByLabel("Firm / organisation name").fill("Playwright Test Farm");
