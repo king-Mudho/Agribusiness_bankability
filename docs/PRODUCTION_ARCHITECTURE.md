@@ -26,15 +26,41 @@ design for the app's documented domain (`agribusinessbankability.com`) — see
             v                                  v
    Next.js SSR (Node)                   Django API (Gunicorn)
    127.0.0.1:3000                       127.0.0.1:8000
-   /  and everything not /api/*         /api/*, /django-admin/*
+   /  and everything else                /api/*, /django-admin/*
             |                                  |
             |                                  v
             |                            PostgreSQL
             |                            127.0.0.1:5432
             v
-   /django-static/ -> served directly
-   by nginx from disk (collectstatic output)
+   /static/, /media/ -> served directly
+   by nginx from disk (collectstatic output, uploaded evidence files)
 ```
+
+**Why `/django-admin/` and not `/admin/`:** the frontend already has its own
+`/admin` route (the Next.js "Internal / researcher tools" page — see
+`frontend/app/admin/page.tsx`), which would collide with Django's
+conventional `admin.site.urls` path (also `/admin/` by default). To avoid
+that, `backend/config/urls.py` mounts the Django admin at `django-admin/`
+directly — a one-line, documented, infrastructure-driven change, not a
+nginx-layer path rewrite. This distinction mattered in practice: an earlier
+version of this deployment rewrote `/django-admin/` → `/admin/` at the proxy
+instead of changing `urls.py`, which broke — Django generates its own
+login-redirect and admin change-list/change-form URLs using the path it
+*thinks* it's mounted at (`/admin/`), not the external path the browser
+actually requested. A logged-out visit to `/django-admin/` got a 302 to
+`/admin/login/?next=/admin/` (correct from Django's perspective, since it
+only knows about `/admin/`), the browser followed it, and nginx routed
+`/admin/login/` to the *frontend* (which owns bare `/admin`) — a Next.js 404,
+not a login form. Mounting the admin at its real external path in `urls.py`
+means Django's own reverse()'d URLs are correct with no proxy-level rewrite
+needed at all; nginx does a plain 1:1 proxy for `/django-admin/`.
+`STATIC_URL`/`MEDIA_URL` (`backend/config/settings/base.py`) are
+`static/`/`media/` respectively, with no collision against anything the
+frontend serves, so those pass through unrewritten too. Found via the
+initial deployment's manual browser check (curl's health check saw a
+same-looking 302 either way and didn't catch it — the difference only shows
+up when a browser actually follows the redirect) — see
+`docs/DEPLOYMENT.md` § Troubleshooting.
 
 No Redis, no Celery, no WebSockets — the application doesn't use any of them (confirmed
 by inspecting `backend/requirements/*.txt` and `backend/config/settings/base.py:149`,

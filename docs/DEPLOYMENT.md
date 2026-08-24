@@ -199,11 +199,18 @@ Created by `setup-server.sh`: database `agribiz_prod`, role `agribiz_prod`
 (login + `CREATEDB` only — not a superuser), password auth over
 `scram-sha-256`, reachable only on loopback.
 
-Migrations run as part of every `deploy.sh` run:
+Migrations run as part of every `deploy.sh` run. If running by hand,
+`DJANGO_SETTINGS_MODULE` must be exported explicitly — `manage.py` sets its
+own dev-settings fallback at import time, before `.env` is ever read, so
+having it only inside `.env` does not select prod settings for an ad-hoc
+CLI invocation (the `agribiz-backend` systemd service is unaffected — its
+`EnvironmentFile=` directive loads `.env` as real process environment
+variables before Python even starts):
 
 ```bash
 cd /srv/agribiz/backend
-sudo -u agribiz venv/bin/python manage.py migrate --noinput
+sudo -u agribiz env DJANGO_SETTINGS_MODULE=config.settings.prod \
+    venv/bin/python manage.py migrate --noinput
 ```
 
 **Seed/demo data:** `manage.py seed_abi_v01` seeds `FrameworkVersion 0.1`
@@ -221,7 +228,8 @@ functionality and are meaningless without the two seeded enterprises.
 
 ```bash
 cd /srv/agribiz/backend
-sudo -u agribiz venv/bin/python manage.py seed_abi_v01
+sudo -u agribiz env DJANGO_SETTINGS_MODULE=config.settings.prod \
+    venv/bin/python manage.py seed_abi_v01
 ```
 
 ## Nginx

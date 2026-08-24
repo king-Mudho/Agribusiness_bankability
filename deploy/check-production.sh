@@ -25,9 +25,23 @@ section() { printf '\n\033[1;34m== %s ==\033[0m\n' "$1"; }
 
 section "DNS"
 for host in "$DOMAIN" "www.$DOMAIN"; do
+    # getent is the reliable path on Linux (the actual production server);
+    # nslookup and python fall back for running this from elsewhere (e.g. a
+    # Windows workstation, where neither getent nor `python3` -- only
+    # `python` -- necessarily exist).
     resolved="$(getent hosts "$host" 2>/dev/null | awk '{print $1}' | head -1)"
+    if [[ -z "$resolved" ]] && command -v nslookup >/dev/null 2>&1; then
+        # nslookup prints the DNS *server's* address before the resolved
+        # host's -- only take an Address line once we've seen "Name:",
+        # or the DNS server's own address would be mistaken for the result.
+        resolved="$(nslookup "$host" 2>/dev/null | awk '
+            /^Name:/ { seen_name=1; next }
+            seen_name && /^Address/ { print $2; exit }
+        ')"
+    fi
     if [[ -z "$resolved" ]]; then
-        resolved="$(python3 -c "import socket; print(socket.gethostbyname('$host'))" 2>/dev/null)"
+        resolved="$(python3 -c "import socket; print(socket.gethostbyname('$host'))" 2>/dev/null \
+                  || python  -c "import socket; print(socket.gethostbyname('$host'))" 2>/dev/null)"
     fi
     if [[ "$resolved" == "$SERVER_IP" ]]; then
         ok "$host resolves to $SERVER_IP"

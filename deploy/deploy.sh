@@ -50,6 +50,20 @@ die()  { printf '\033[1;31m[error]\033[0m %s\n' "$1" >&2; exit 1; }
 APP_HOME="$(getent passwd "$APP_USER" | cut -d: -f6)"
 as_app() { sudo -u "$APP_USER" env "HOME=$APP_HOME" "PATH=$PATH" "$@"; }
 
+# manage.py sets DJANGO_SETTINGS_MODULE=config.settings.dev as its own
+# os.environ.setdefault() fallback, at import time -- before django-environ
+# ever gets a chance to read backend/.env. Setting DJANGO_SETTINGS_MODULE
+# only inside .env therefore has NO effect on which settings module gets
+# selected; it must be a real process environment variable. This bit a real
+# deploy: `manage.py check --deploy` silently ran against dev settings
+# (DEBUG, SECURE_SSL_REDIRECT etc. never got prod.py's hardening) with no
+# error, only warnings that are easy to miss. agribiz-backend.service sets
+# this the same way, for the same reason.
+as_app_django() {
+    sudo -u "$APP_USER" env "HOME=$APP_HOME" "PATH=$PATH" \
+        "DJANGO_SETTINGS_MODULE=config.settings.prod" "$@"
+}
+
 log "Fixing ownership"
 chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 
@@ -71,16 +85,22 @@ fi
 as_app "$BACKEND/venv/bin/pip" install --quiet --upgrade pip
 as_app "$BACKEND/venv/bin/pip" install --quiet -r "$BACKEND/requirements/prod.txt"
 
+# systemd's ReadWritePaths= (agribiz-backend.service) requires every listed
+# path to already exist -- if one doesn't, mount namespacing fails hard
+# (status 226/NAMESPACE) and gunicorn never even starts, before it gets a
+# chance to write anything itself.
+as_app mkdir -p "$BACKEND/media" "$APP_DIR/logs"
+
 log "Checking Django configuration"
-( cd "$BACKEND" && as_app "$BACKEND/venv/bin/python" manage.py check --deploy ) || \
+( cd "$BACKEND" && as_app_django "$BACKEND/venv/bin/python" manage.py check --deploy ) || \
     die "Django checks failed -- fix backend/.env before continuing."
 
 log "Running database migrations"
-( cd "$BACKEND" && as_app "$BACKEND/venv/bin/python" manage.py migrate --noinput )
+( cd "$BACKEND" && as_app_django "$BACKEND/venv/bin/python" manage.py migrate --noinput )
 
 log "Collecting Django static files"
-mkdir -p "$BACKEND/staticfiles"
-( cd "$BACKEND" && as_app "$BACKEND/venv/bin/python" manage.py collectstatic --noinput --clear )
+as_app mkdir -p "$BACKEND/staticfiles"
+( cd "$BACKEND" && as_app_django "$BACKEND/venv/bin/python" manage.py collectstatic --noinput --clear )
 
 # ------------------------------------------------------------------ frontend
 
@@ -168,7 +188,14 @@ check() {
 }
 
 failed=0
-check "backend (gunicorn)"  200 "http://127.0.0.1:8000/api/v1/frameworks/" || failed=1
+# Gunicorn is checked with the same Host and X-Forwarded-Proto headers nginx
+# actually sends -- without them, DJANGO_ALLOWED_HOSTS rejects a bare
+# "Host: 127.0.0.1" with 400, and SECURE_SSL_REDIRECT (prod.py) 301s a
+# request it can't tell arrived over HTTPS. Both are correct behaviour, not
+# bugs; the check has to match what a real request through nginx looks like.
+check "backend (gunicorn)"  200 \
+    -H "Host: $SITE_DOMAIN" -H "X-Forwarded-Proto: https" \
+    "http://127.0.0.1:8000/api/v1/frameworks/" || failed=1
 check "frontend (node ssr)" 200 "http://127.0.0.1:3000/"                  || failed=1
 
 # Check nginx the way a real visitor reaches it: with the site's own Host
