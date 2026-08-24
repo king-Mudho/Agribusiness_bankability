@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "@/config/env";
-import { getAccessToken } from "@/lib/auth/tokenStorage";
+import { clearTokens, getAccessToken } from "@/lib/auth/tokenStorage";
 import type { ApiError } from "@/types/api";
 
 export class ApiRequestError extends Error {
@@ -26,7 +26,21 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
+  let res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
+
+  // Most endpoints (the public wizard, intake, results) are AllowAny, but the
+  // client attaches whatever JWT happens to be in storage to every request --
+  // e.g. because staff previously signed in to the dashboard on this same
+  // device. An expired/invalid token makes DRF's JWT auth reject the request
+  // with 401 even on an AllowAny view, which would otherwise silently break
+  // every public flow on that device until someone clears storage. If we sent
+  // a token and got a 401, drop the stale token and retry once without it.
+  if (res.status === 401 && token) {
+    clearTokens();
+    const retryHeaders = new Headers(headers);
+    retryHeaders.delete("Authorization");
+    res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers: retryHeaders });
+  }
 
   if (res.status === 204) {
     return undefined as T;

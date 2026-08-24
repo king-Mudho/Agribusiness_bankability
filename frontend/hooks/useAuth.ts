@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { create } from "zustand";
 
 import { authApi } from "@/lib/api/endpoints";
-import { clearTokens, getAccessToken, setTokens } from "@/lib/auth/tokenStorage";
+import { AUTH_TOKENS_CLEARED_EVENT, clearTokens, getAccessToken, setTokens } from "@/lib/auth/tokenStorage";
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -58,6 +58,16 @@ export function useAuth(): AuthState {
     }
     // Only needs to run once, on mount, after hydration.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // A stale/expired token can be cleared silently by the API client (see
+    // lib/api/client.ts) when a request that shouldn't need auth gets
+    // rejected for one. Stay in sync so the UI falls back to the login form
+    // instead of claiming to be signed in with no working token.
+    const onTokensCleared = () => useAuthStore.setState({ isAuthenticated: false });
+    window.addEventListener(AUTH_TOKENS_CLEARED_EVENT, onTokensCleared);
+    return () => window.removeEventListener(AUTH_TOKENS_CLEARED_EVENT, onTokensCleared);
   }, []);
 
   return state;

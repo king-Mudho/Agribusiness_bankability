@@ -77,7 +77,32 @@ Date started: 2026-08-24.
    researcher/admin doing a normal page refresh on the dashboard or admin
    screen during the pilot, not just a one-off.
 
-4. **`LoginForm`'s helper text was hardcoded to describe the aggregate
+4. **CRITICAL — a stale/expired internal-user JWT silently breaks the entire
+   public wizard on that device.** `lib/api/client.ts`'s `request()` attaches
+   `Authorization: Bearer <token>` to *every* API call whenever any token
+   exists in `localStorage` -- including calls to `AllowAny` public endpoints
+   like `GET /frameworks/` (which the wizard calls first, via
+   `frameworksApi.getActiveDefinition()`, to find the active framework
+   version before fetching its full definition). Django REST Framework's JWT
+   authentication rejects an invalid/expired token with `401` even on an
+   `AllowAny` view -- authentication is resolved before permissions are
+   checked, so an unusable credential blocks the request regardless of
+   whether the endpoint actually requires one. Reproduced live: with a
+   researcher token that had passed its 30-minute lifetime
+   (`JWT_ACCESS_TOKEN_LIFETIME_MINUTES=30`) still sitting in `localStorage`
+   from earlier dashboard testing on the same browser, loading
+   `/assessment/new` rendered "Could not load the ABI framework. Check your
+   connection and try again." -- confirmed via network inspection that
+   `GET /frameworks/` was returning `401`, while a direct unauthenticated
+   `curl` to the exact same URL returned `200`. At a real show-floor kiosk,
+   this means: staff demos the Research/Lender dashboard once on the booth
+   tablet, and within 30 minutes every subsequent visitor's public assessment
+   silently breaks with a misleading "check your connection" message, on a
+   device with a perfectly good connection. Confirmed reproducible with any
+   invalid token (also tested with a deliberately malformed fake token in a
+   clean browser tab, not just a genuinely expired real one).
+
+5. **`LoginForm`'s helper text was hardcoded to describe the aggregate
    dashboard, even when reused on `/admin`.** The shared `LoginForm` component
    always read "The Research/Lender aggregate view requires an Analyst,
    Researcher or Admin account.", including on `/admin` (expert review,
@@ -246,6 +271,24 @@ Date started: 2026-08-24.
    (`background-color: rgb(14, 59, 46)`, the header/accent green) still
    applies, and the Consent step's "Continue" button still enables/disables
    correctly. `tsc --noEmit` and `eslint .` stayed clean.
+
+10. **Stale-token public-endpoint lockout (see "Manual bugs found" #4).**
+    `lib/api/client.ts`: if a request that included an `Authorization` header
+    comes back `401`, the client now clears the stored tokens
+    (`clearTokens()`) and retries the same request once without the header --
+    covers both a genuinely expired token and a corrupt/malformed one, and
+    correctly leaves a real permissions failure on a *protected* endpoint as
+    a 401 after the retry (since retrying without a token still isn't
+    authorized). `lib/auth/tokenStorage.ts`'s `clearTokens()` now dispatches a
+    small `abi:auth-tokens-cleared` window event on every clear (including
+    the pre-existing explicit `logout()` path); `hooks/useAuth.ts` listens for
+    it and syncs `isAuthenticated` back to `false`, so the UI doesn't keep
+    claiming to be signed in with a token that no longer exists. Verified
+    live two ways: (1) a real expired `researcher_demo` token left over from
+    earlier dashboard testing -- `/assessment/new` went from showing "Could
+    not load the ABI framework" to rendering the intake form normally, token
+    silently cleared; (2) a deliberately malformed fake token set in a clean
+    tab, same result. `tsc --noEmit` and `eslint .` stayed clean.
 
 ## Known issues / needs human input
 
