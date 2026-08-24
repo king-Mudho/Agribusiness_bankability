@@ -218,8 +218,8 @@ guessing silently — see `AGENTS.md` § 3.)*
 
 ## Phase 16 — Demo polish
 
-- [ ] Build `/demo` sponsor landing page with the GigaFood Africa copy from
+- [x] Build `/demo` sponsor landing page with the GigaFood Africa copy from
       `22_DEMO_SCRIPT.md`.
-- [ ] Confirm "Load Demo Firm" works for both Maundurahuku and Zvemuchando.
+- [x] Confirm "Load Demo Firm" works for both Maundurahuku and Zvemuchando.
 - [ ] Walk through the full booth demo script end to end on a fresh checkout.
 - [ ] Verify `26_DEFINITION_OF_DONE.md` in full.
