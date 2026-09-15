@@ -28,6 +28,10 @@ frontend/next-env.d.ts
 # Claude Code local session state
 .claude/
 
+# Contains live production credentials -- never commit this to git history.
+# Distribute it directly (email/WhatsApp/print), not via the repository.
+ABI_User_Guide.docx
+
 # Playwright / TypeScript build artifacts
 frontend/test-results/
 frontend/playwright-report/

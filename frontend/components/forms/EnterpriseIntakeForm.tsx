@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/Field";
 import {
+  DISTRICT_CHOICES,
   FINANCE_TYPE_CHOICES,
   FINANCIER_TYPE_CHOICES,
   ORGANISATION_TYPE_CHOICES,
@@ -61,7 +62,13 @@ export function EnterpriseIntakeForm({
           error={errors.province?.message}
           {...register("province")}
         />
-        <TextField label="District" error={errors.district?.message} {...register("district")} />
+        <SelectField
+          label="District"
+          placeholder="Select..."
+          options={DISTRICT_CHOICES}
+          error={errors.district?.message}
+          {...register("district")}
+        />
         <TextField
           label="Years operating"
           type="number"
