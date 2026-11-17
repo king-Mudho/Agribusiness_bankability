@@ -244,6 +244,35 @@ sudo nginx -t                 # validate syntax before ever reloading
 sudo systemctl reload nginx   # deploy.sh does this automatically
 ```
 
+### Unknown hostnames (catch-all)
+
+`nginx/00-default-reject.conf` is installed by `deploy.sh` on every run to
+`/etc/nginx/conf.d/00-default-reject.conf`. It is the `default_server` on
+`:443` and refuses the TLS handshake (`ssl_reject_handshake on`) for any
+hostname not named in a `server_name`. certbot never edits it.
+
+Why it exists: an unrelated domain (`codmtracker.com`) had DNS pointing at
+this server's IP. With certbot's `:443` block as the only HTTPS server, nginx
+served the ABI app under that name. Google indexed it there and listed it
+ahead of agribizframework.com. Visitors saw "Not secure" (wrong certificate),
+and the assessment page hung because its API calls went cross-origin.
+
+The frontend also sets a canonical URL on `/` and `/demo`, and serves
+`/robots.txt` and `/sitemap.xml`, all built from `NEXT_PUBLIC_APP_DOMAIN`.
+
+Check after deploying (expect a handshake failure for the foreign name and
+200 for the real one):
+
+```bash
+curl -sI --resolve codmtracker.com:443:127.0.0.1 https://codmtracker.com/          # should fail
+curl -sI --resolve agribizframework.com:443:127.0.0.1 https://agribizframework.com/  # 200
+curl -s https://agribizframework.com/robots.txt
+```
+
+Search Console (manual, one-off): verify `agribizframework.com`, submit
+`https://agribizframework.com/sitemap.xml`, and use URL Inspection →
+Request indexing on the home page.
+
 ## SSL
 
 ```bash

@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "@/styles/globals.css";
+import { SITE_URL } from "@/config/env";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Agribusiness Bankability Index (ABI) -- Demo v0.1",
   description:
     "Research prototype financing-readiness self-assessment for agribusiness enterprises.",

@@ -192,6 +192,23 @@ else
     warn "  certbot --nginx -d agribizframework.com -d www.agribizframework.com --redirect"
 fi
 
+# Catch-all that refuses HTTPS for any hostname not served above (see the
+# header of nginx/00-default-reject.conf: without it, any other domain whose
+# DNS points at this IP got the app served under its name, and Google
+# indexed it there). certbot never edits this file, so unlike the site
+# config it is safe to install on every deploy. If nginx rejects it, take it
+# back out so the live config stays valid.
+DEFAULT_REJECT_CONF=/etc/nginx/conf.d/00-default-reject.conf
+if ! cmp -s "$APP_DIR/nginx/00-default-reject.conf" "$DEFAULT_REJECT_CONF"; then
+    log "Installing nginx catch-all for unknown hostnames"
+    install -m 644 "$APP_DIR/nginx/00-default-reject.conf" "$DEFAULT_REJECT_CONF"
+    if ! nginx -t; then
+        rm -f "$DEFAULT_REJECT_CONF"
+        die "nginx rejected nginx/00-default-reject.conf -- removed it again, live config unchanged."
+    fi
+    systemctl reload nginx 2>/dev/null || true
+fi
+
 # ------------------------------------------------------------------- verify
 
 log "Verifying"

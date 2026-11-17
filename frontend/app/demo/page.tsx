@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { LoadDemoFirmButton } from "@/components/demo/LoadDemoFirmButton";
 import { ResearchDisclaimer } from "@/components/shared/ResearchDisclaimer";
 import { Button } from "@/components/ui/Button";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/demo" },
+};
 
 export default function DemoLandingPage() {
   return (
