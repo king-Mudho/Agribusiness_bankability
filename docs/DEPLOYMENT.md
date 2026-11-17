@@ -269,9 +269,34 @@ curl -sI --resolve agribizframework.com:443:127.0.0.1 https://agribizframework.c
 curl -s https://agribizframework.com/robots.txt
 ```
 
-Search Console (manual, one-off): verify `agribizframework.com`, submit
-`https://agribizframework.com/sitemap.xml`, and use URL Inspection →
-Request indexing on the home page.
+### Google Search Console
+
+**Status: set up on 17 Nov 2026.**
+
+| Item | State |
+|---|---|
+| Property | `agribizframework.com`, Domain type (covers http/https, `www` and every subdomain) |
+| Owner account | The Mudhotech Google account (ask the project owner for access) |
+| Verification | DNS TXT record at Namecheap: Host `@`, value `google-site-verification=…` |
+| Sitemap | `https://agribizframework.com/sitemap.xml`, accepted with 2 pages |
+| Indexing requested | `https://agribizframework.com/` and `https://agribizframework.com/demo` |
+
+On 17 Nov 2026 both pages showed "URL is not on Google" (never indexed
+before), and the Live Test reported "URL is available to Google". Indexing
+normally follows within days to about two weeks.
+
+**Do not delete the `google-site-verification` TXT record** in Namecheap →
+Domain List → agribizframework.com → Advanced DNS. Google re-checks it
+periodically, and removing it drops the verification. It sits alongside the
+SPF TXT record (`v=spf1 include:spf.efwd.registrar-servers.com ~all`); both
+must stay.
+
+To check progress, search `site:agribizframework.com`, or in Search Console
+use URL Inspection on the home page and look for "URL is on Google".
+Re-requesting indexing does not move a page up the crawl queue.
+
+If DNS ever moves away from Namecheap, copy the TXT record to the new
+provider before switching nameservers.
 
 ## SSL
 
