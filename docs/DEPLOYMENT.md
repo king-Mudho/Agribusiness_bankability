@@ -13,7 +13,7 @@ Full walkthrough for deploying ABI to production. See also
 | Hostname | `server1.agribizframework.com` |
 | RAM | ~956MB — see the swap/sizing notes throughout this doc |
 | Disk | 20GB (17GB free at provisioning) |
-| Provider | Contabo, VPS Spark plan |
+| Provider | Namecheap VPS, Spark plan. The IP sits in Namecheap's `NAMEC-4` block (`66.29.128.0/19`, ARIN). Earlier versions of this doc said Contabo, which was wrong. |
 | Access | SSH key only (root). Password authentication is disabled — see "Initial server setup" § SSH hardening. |
 
 ## Domain
@@ -62,7 +62,7 @@ actually resolve here.
 
 ### SSH access
 
-This deployment was bootstrapped from a Contabo-issued temporary root
+This deployment was bootstrapped from a provider-issued (Namecheap) temporary root
 password. That password was used exactly once, to install an SSH key, and
 is no longer valid — **SSH password authentication is disabled** on this
 server (`PasswordAuthentication no` in `/etc/ssh/sshd_config`; verified by
@@ -79,9 +79,15 @@ If you need to add another admin's key, append their public key to
 `/root/.ssh/authorized_keys` (mode `600`, directory mode `700`).
 
 **If SSH access is ever lost** (key lost, `sshd_config` misconfigured):
-Contabo's control panel provides an out-of-band recovery console (VNC/serial
-access) independent of SSH — use that to fix `/etc/ssh/sshd_config` and
-restart `sshd`.
+use the out-of-band console (VNC) in Namecheap's VPS management panel
+(Namecheap account → Hosting List → this VPS). It works independently of
+SSH; use it to fix `/etc/ssh/sshd_config` and restart `sshd`.
+
+> **Shared IP history.** Namecheap reuses VPS addresses. `66.29.139.201`
+> most likely belonged to another customer before this server (provisioned
+> around 23 Aug 2026). An unrelated domain, `codmtracker.com` (registered
+> at Namecheap on 3 Mar 2026), still points here. That is why
+> `nginx/00-default-reject.conf` exists (see § Nginx → Unknown hostnames).
 
 ### Server bootstrap
 
