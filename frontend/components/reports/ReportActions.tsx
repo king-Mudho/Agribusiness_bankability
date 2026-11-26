@@ -1,39 +1,40 @@
 "use client";
 
+import { Award, FileDown, FileSpreadsheet, FileText, Smartphone } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { reportsApi } from "@/lib/api/endpoints";
-import type { ResultsPayload } from "@/types/api";
+import type { ReportType, ResultsPayload } from "@/types/api";
 
-async function triggerDownload(url: string, filename: string) {
-  const res = await fetch(url);
-  const blob = await res.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = objectUrl;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(objectUrl);
-}
+const DOWNLOADS: { type: ReportType; label: string; icon: typeof FileText; variant: "primary" | "secondary" | "outline" }[] = [
+  { type: "PDF", label: "PDF report", icon: FileText, variant: "primary" },
+  { type: "CERT", label: "Certificate (PDF)", icon: Award, variant: "secondary" },
+  { type: "XLSX", label: "Excel workbook", icon: FileSpreadsheet, variant: "outline" },
+  { type: "CSV", label: "CSV data", icon: FileDown, variant: "outline" },
+];
 
-export function ReportActions({ assessmentId, results }: { assessmentId: string; results: ResultsPayload }) {
-  const [busy, setBusy] = useState<"pdf" | "csv" | "device" | null>(null);
+export function ReportActions({
+  assessmentId,
+  results,
+  showSaveOnDevice = true,
+}: {
+  assessmentId: string;
+  results: ResultsPayload;
+  showSaveOnDevice?: boolean;
+}) {
+  const [busy, setBusy] = useState<ReportType | "device" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleGenerate(reportType: "PDF" | "CSV") {
-    setBusy(reportType === "PDF" ? "pdf" : "csv");
+  async function handleGenerate(reportType: ReportType) {
+    setBusy(reportType);
     setError(null);
     try {
-      const report = await reportsApi.generate(assessmentId, reportType);
-      const url = reportsApi.downloadUrl(report.id);
-      await triggerDownload(url, `abi-report-${assessmentId}.${reportType.toLowerCase()}`);
+      await reportsApi.generateAndDownload(assessmentId, reportType);
     } catch {
       setError(
         navigator.onLine
-          ? "Could not generate the report -- please try again."
+          ? "Could not generate the file -- please try again."
           : "You're offline -- reconnect to generate a server-side report. Use Save on Device for an offline copy."
       );
     } finally {
@@ -59,19 +60,34 @@ export function ReportActions({ assessmentId, results }: { assessmentId: string;
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <section className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
+      <div>
+        <h2 className="text-lg font-semibold text-text">Download</h2>
+        <p className="text-xs text-text-muted">
+          Files are generated on the server from these stored results and carry the research disclaimer.
+        </p>
+      </div>
       <div className="flex flex-wrap gap-3">
-        <Button onClick={() => handleGenerate("PDF")} disabled={busy !== null}>
-          {busy === "pdf" ? "Generating..." : "Print / Save PDF"}
-        </Button>
-        <Button variant="secondary" onClick={() => handleGenerate("CSV")} disabled={busy !== null}>
-          {busy === "csv" ? "Generating..." : "Export CSV"}
-        </Button>
-        <Button variant="outline" onClick={handleSaveOnDevice} disabled={busy !== null}>
-          Save on Device
-        </Button>
+        {DOWNLOADS.map(({ type, label, icon: Icon, variant }) => (
+          <Button
+            key={type}
+            variant={variant}
+            onClick={() => handleGenerate(type)}
+            disabled={busy !== null}
+            className="gap-2"
+          >
+            <Icon size={16} aria-hidden />
+            {busy === type ? "Generating..." : label}
+          </Button>
+        ))}
+        {showSaveOnDevice && (
+          <Button variant="ghost" onClick={handleSaveOnDevice} disabled={busy !== null} className="gap-2">
+            <Smartphone size={16} aria-hidden />
+            Save on device
+          </Button>
+        )}
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
-    </div>
+    </section>
   );
 }

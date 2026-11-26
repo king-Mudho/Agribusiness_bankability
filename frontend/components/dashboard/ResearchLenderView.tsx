@@ -48,7 +48,9 @@ function SimpleBarChart({
   );
 }
 
-export function ResearchLenderView() {
+/** `embedded` hides the view's own sign-out link when it sits inside the
+ * admin portal, which has its own. */
+export function ResearchLenderView({ embedded = false }: { embedded?: boolean } = {}) {
   const { isAuthenticated, logout } = useAuth();
   const [filters, setFilters] = useState<DashboardFilterValues>(EMPTY_FILTERS);
 
@@ -88,9 +90,11 @@ export function ResearchLenderView() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <p className="rounded-md bg-warning/10 px-3 py-2 text-sm text-warning">{data.caption}</p>
-        <button className="text-sm text-header underline" onClick={logout}>
-          Sign out
-        </button>
+        {!embedded && (
+          <button className="text-sm text-header underline" onClick={logout}>
+            Sign out
+          </button>
+        )}
       </div>
 
       <DashboardFilters values={filters} onChange={setFilters} />

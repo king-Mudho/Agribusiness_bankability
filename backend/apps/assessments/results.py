@@ -4,6 +4,7 @@ from apps.frameworks.models import ReadinessBand
 from apps.recommendations.services import select_gap_dimensions, select_strength_dimensions
 
 from .gates import resolve_overall_gate_status
+from .insights import build_insights
 
 
 def build_results_payload(assessment) -> dict:
@@ -75,5 +76,6 @@ def build_results_payload(assessment) -> dict:
             }
             for afp in financing_pathways
         ],
+        "insights": build_insights(assessment, dimension_scores),
         "disclaimer": RESEARCH_PROTOTYPE_DISCLAIMER,
     }

@@ -85,12 +85,40 @@ def generate_pdf_report(assessment) -> bytes:
     story.append(Paragraph("Priority gaps", styles["Section"]))
     story.append(Paragraph(", ".join(payload["priority_gaps"]) or "-", styles["Body"]))
 
+    insights = payload.get("insights") or {}
+    insight_lines = []
+    next_band = insights.get("next_band")
+    if next_band:
+        insight_lines.append(
+            f"{next_band['points_needed']:g} more points would reach the next band, "
+            f"{next_band['label']} ({next_band['min_score']}+)."
+        )
+    top_gains = [r for r in insights.get("improvement_potential", [])[:2] if r["potential_points"] > 0]
+    if top_gains:
+        insight_lines.append(
+            "Largest potential gains: "
+            + "; ".join(f"{r['dimension']} (up to +{r['potential_points']:g} points)" for r in top_gains)
+            + "."
+        )
+    peer = insights.get("peer_benchmark")
+    if peer and peer.get("average_abi") is not None:
+        diff = payload["abi_score"] - peer["average_abi"]
+        insight_lines.append(
+            f"Peer comparison ({peer['label']}, {peer['sample_size']} enterprises): average ABI "
+            f"{peer['average_abi']:.0f}; this enterprise is {abs(diff):.0f} points "
+            f"{'above' if diff >= 0 else 'below'} it."
+        )
+    if insight_lines:
+        story.append(Paragraph("Insights", styles["Section"]))
+        for line in insight_lines:
+            story.append(Paragraph(f"- {line}", styles["Body"]))
+
     story.append(Paragraph("Critical gates", styles["Section"]))
     gates_line = " | ".join(f"{g['name']}: {g['result']}" for g in payload["critical_gates"])
     story.append(Paragraph(gates_line, styles["Body"]))
 
     story.append(Paragraph("Recommended actions", styles["Section"]))
-    for rec in payload["recommendations"][:5]:
+    for rec in payload["recommendations"][:4]:
         story.append(Paragraph(f"- {rec['text']}", styles["Body"]))
 
     story.append(Paragraph("Potential financing pathways", styles["Section"]))

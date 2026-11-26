@@ -9,6 +9,8 @@ class Report(models.Model):
     class ReportType(models.TextChoices):
         PDF = "PDF", "PDF"
         CSV = "CSV", "CSV"
+        XLSX = "XLSX", "Excel workbook"
+        CERT = "CERT", "Certificate (PDF)"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     assessment = models.ForeignKey(

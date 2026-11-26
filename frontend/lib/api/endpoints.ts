@@ -9,6 +9,7 @@ import type {
   PilotFeedbackPayload,
   RecommendationPayload,
   ReportRecord,
+  ReportType,
   ResultsPayload,
 } from "@/types/api";
 
@@ -78,12 +79,31 @@ export const assessmentsApi = {
     }),
 };
 
+const REPORT_FILE_SUFFIX: Record<ReportType, string> = {
+  PDF: "report.pdf",
+  CSV: "data.csv",
+  XLSX: "workbook.xlsx",
+  CERT: "certificate.pdf",
+};
+
 export const reportsApi = {
-  generate: (assessmentId: string, reportType: "PDF" | "CSV") =>
+  generate: (assessmentId: string, reportType: ReportType) =>
     apiClient.post<ReportRecord>("/reports/", { assessment: assessmentId, report_type: reportType }),
-  downloadUrl: (reportId: string) => {
-    const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
-    return `${base}/reports/${reportId}/download/`;
+  /** Re-download a report that was already generated. */
+  download: (reportId: string, reportType: ReportType) =>
+    apiClient.download(`/reports/${reportId}/download/`, `abi-${REPORT_FILE_SUFFIX[reportType]}`),
+  /** Generate a fresh report on the server (the backend builds it from the
+   * stored results) and download it. */
+  generateAndDownload: async (assessmentId: string, reportType: ReportType) => {
+    const report = await apiClient.post<ReportRecord>("/reports/", {
+      assessment: assessmentId,
+      report_type: reportType,
+    });
+    await apiClient.download(
+      `/reports/${report.id}/download/`,
+      `abi-${assessmentId.slice(0, 8)}-${REPORT_FILE_SUFFIX[reportType]}`
+    );
+    return report;
   },
 };
 

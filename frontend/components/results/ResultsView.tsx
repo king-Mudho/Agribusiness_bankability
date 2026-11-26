@@ -9,6 +9,7 @@ import { ScoreGauge } from "@/components/abi/ScoreGauge";
 import { DimensionBarList } from "@/components/charts/DimensionBarList";
 import { DimensionRadarChart } from "@/components/charts/DimensionRadarChart";
 import { TrafficLightPanel } from "@/components/dashboard/TrafficLightPanel";
+import { InsightsPanel } from "@/components/results/InsightsPanel";
 import { CertificatePanel } from "@/components/reports/CertificatePanel";
 import { ReportActions } from "@/components/reports/ReportActions";
 import { Button } from "@/components/ui/Button";
@@ -17,7 +18,9 @@ import { enterpriseChoiceLabel } from "@/config/enterpriseChoices";
 import { assessmentsApi, enterprisesApi } from "@/lib/api/endpoints";
 import type { GateResultValue } from "@/types/api";
 
-export function ResultsView({ assessmentId }: { assessmentId: string }) {
+/** `embedded` renders just the results body (no page header or public
+ * call-to-action buttons) for reuse inside the admin portal. */
+export function ResultsView({ assessmentId, embedded = false }: { assessmentId: string; embedded?: boolean }) {
   const resultsQuery = useQuery({
     queryKey: ["assessment-results", assessmentId],
     queryFn: () => assessmentsApi.getResults(assessmentId),
@@ -49,19 +52,8 @@ export function ResultsView({ assessmentId }: { assessmentId: string }) {
   const results = resultsQuery.data;
   const enterprise = enterpriseQuery.data;
 
-  return (
-    <main className="min-h-screen bg-bg pb-16">
-      <header className="sticky top-0 z-10 bg-header px-6 py-4 text-white">
-        <div className="mx-auto flex max-w-4xl items-center gap-3">
-          <span className="rounded bg-accent px-2 py-1 text-xs font-bold text-header">ABI</span>
-          <div>
-            <p className="font-semibold">Agribusiness Bankability Index</p>
-            <p className="text-xs text-white/80">Results -- ABI Demo v0.1, research prototype</p>
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-8">
+  const body = (
+      <div className={embedded ? "flex flex-col gap-6" : "mx-auto flex max-w-4xl flex-col gap-8 px-4 py-8"}>
         {/* 1. Score hero */}
         <section className="flex flex-col items-center gap-4 rounded-lg border border-border bg-surface p-6 text-center sm:flex-row sm:justify-center sm:text-left">
           <ScoreGauge score={results.abi_score} />
@@ -108,6 +100,9 @@ export function ResultsView({ assessmentId }: { assessmentId: string }) {
             emptyLabel="No critical gate failures."
           />
         </section>
+
+        {/* 4b. Insights: what would move the score */}
+        <InsightsPanel results={results} />
 
         {/* 5. Critical gates */}
         <section className="rounded-lg border border-border bg-surface p-4">
@@ -189,19 +184,37 @@ export function ResultsView({ assessmentId }: { assessmentId: string }) {
           </section>
         )}
 
-        <ReportActions assessmentId={assessmentId} results={results} />
+        <ReportActions assessmentId={assessmentId} results={results} showSaveOnDevice={!embedded} />
 
-        <div className="flex flex-wrap gap-3">
-          <Link href={`/feedback/${assessmentId}`}>
-            <Button variant="secondary">Give pilot feedback</Button>
-          </Link>
-          <Link href="/dashboard">
-            <Button variant="outline">Go to dashboard</Button>
-          </Link>
-        </div>
+        {!embedded && (
+          <div className="flex flex-wrap gap-3">
+            <Link href={`/feedback/${assessmentId}`}>
+              <Button variant="secondary">Give pilot feedback</Button>
+            </Link>
+            <Link href="/dashboard">
+              <Button variant="outline">Go to dashboard</Button>
+            </Link>
+          </div>
+        )}
 
         <ResearchDisclaimer />
       </div>
+  );
+
+  if (embedded) return body;
+
+  return (
+    <main className="min-h-screen bg-bg pb-16">
+      <header className="sticky top-0 z-10 bg-header px-6 py-4 text-white">
+        <div className="mx-auto flex max-w-4xl items-center gap-3">
+          <span className="rounded bg-accent px-2 py-1 text-xs font-bold text-header">ABI</span>
+          <div>
+            <p className="font-semibold">Agribusiness Bankability Index</p>
+            <p className="text-xs text-white/80">Results -- ABI Demo v0.1, research prototype</p>
+          </div>
+        </div>
+      </header>
+      {body}
     </main>
   );
 }

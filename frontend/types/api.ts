@@ -138,7 +138,31 @@ export interface ResultsPayload {
   overall_gate_status: string | null;
   recommendations: RecommendationPayload[];
   financing_pathways: FinancingPathwayPayload[];
+  insights?: ResultsInsights;
   disclaimer: string;
+}
+
+export interface ImprovementPotentialRow {
+  dimension: string;
+  dimension_code: string;
+  score: number;
+  weight_percent: number;
+  weighted_contribution: number;
+  /** ABI points gained if this dimension reached 100, using the framework's weight. */
+  potential_points: number;
+}
+
+export interface ResultsInsights {
+  next_band: { code: string; label: string; min_score: number; points_needed: number } | null;
+  improvement_potential: ImprovementPotentialRow[];
+  peer_benchmark: {
+    group: "value_chain" | "all";
+    label: string;
+    sample_size: number;
+    average_abi: number | null;
+    dimension_averages: Record<string, number>;
+  } | null;
+  min_peer_sample: number;
 }
 
 export interface PilotFeedbackPayload {
@@ -152,10 +176,12 @@ export interface PilotFeedbackPayload {
   would_recommend: boolean | null;
 }
 
+export type ReportType = "PDF" | "CSV" | "XLSX" | "CERT";
+
 export interface ReportRecord {
   id: string;
   assessment: string;
-  report_type: "PDF" | "CSV";
+  report_type: ReportType;
   generated_at: string;
 }
 

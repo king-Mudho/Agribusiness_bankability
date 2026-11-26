@@ -23,7 +23,8 @@ v0.1, but must be rate-limited and must not leak other enterprises' data.
 | Method | Path | Purpose |
 |---|---|---|
 | POST | `/api/v1/auth/token/` | Obtain JWT (internal users) |
-| POST | `/api/v1/auth/token/refresh/` | Refresh JWT |
+| POST | `/api/v1/auth/token/refresh/` | Refresh JWT (the frontend client refreshes automatically on a 401) |
+| GET | `/api/v1/auth/me/` | Signed-in user and role; drives which admin-portal sections the frontend shows |
 | GET/POST | `/api/v1/enterprises/` | List / create enterprise profile |
 | GET/PATCH | `/api/v1/enterprises/{id}/` | Retrieve / update one enterprise |
 | GET | `/api/v1/frameworks/` | List framework versions |
@@ -39,11 +40,20 @@ v0.1, but must be rate-limited and must not leak other enterprises' data.
 | GET | `/api/v1/assessments/{id}/recommendations/` | Recommended actions for this assessment |
 | GET | `/api/v1/assessments/{id}/financing/` | Potential financing pathways for this assessment |
 | POST | `/api/v1/assessments/{id}/feedback/` | Submit pilot feedback |
-| GET/POST | `/api/v1/reports/` | Generate/list reports (PDF/CSV) for an assessment |
+| GET/POST | `/api/v1/reports/` | Generate/list reports for an assessment. `report_type`: `PDF` (one-page report), `CSV`, `XLSX` (Excel workbook), `CERT` (certificate PDF) |
 | GET | `/api/v1/reports/{id}/download/` | Download a generated report file |
 | GET | `/api/v1/research/dashboard/` | Aggregate research/lender dashboard statistics (internal auth required) |
 | POST | `/api/v1/research/expert-review/` | Submit an expert review record (internal auth required) |
 | POST | `/api/v1/research/pretest-note/` | Submit a cognitive pretest observation (internal auth required) |
+| GET | `/api/v1/admin/overview/` | Admin portal: headline counts, latest assessments, feedback summary (**Admin role**) |
+| GET | `/api/v1/admin/assessments/` | Admin portal: every assessment, paginated; `q`, `status`, `value_chain`, `province`, `readiness_band`, `date_from`, `date_to` (**Admin**) |
+| GET | `/api/v1/admin/enterprises/` | Admin portal: enterprises with profile, consent, latest ABI; `q` (**Admin**) |
+| GET | `/api/v1/admin/reports/` | Admin portal: generated report files; `report_type`, `q` (**Admin**) |
+| GET | `/api/v1/admin/feedback/` | Admin portal: pilot feedback (**Admin**) |
+| GET | `/api/v1/admin/expert-reviews/`, `/admin/pretest-notes/` | Admin portal: submitted research records (**Admin**) |
+| GET | `/api/v1/admin/audit-log/` | Admin portal: audit log; `action` (**Admin**) |
+| GET | `/api/v1/admin/users/` | Admin portal: staff accounts and roles, read-only (**Admin**) |
+| GET | `/api/v1/admin/export/{assessments\|enterprises\|feedback}/` | Bulk export, `file_type=csv\|xlsx` (`format` is reserved by DRF); assessments accept the list filters. Audit-logged (**Admin**) |
 
 ## Key payload shapes
 

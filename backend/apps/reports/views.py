@@ -8,11 +8,28 @@ from rest_framework.response import Response
 from apps.assessments.models import Assessment
 from apps.audit.utils import log_action
 
+from .certificate import generate_certificate_pdf
+from .excel import generate_xlsx_report
 from .generators import generate_csv_report, generate_pdf_report
 from .models import Report
 from .serializers import ReportSerializer
 
-CONTENT_TYPES = {Report.ReportType.PDF: "application/pdf", Report.ReportType.CSV: "text/csv"}
+XLSX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+CONTENT_TYPES = {
+    Report.ReportType.PDF: "application/pdf",
+    Report.ReportType.CSV: "text/csv",
+    Report.ReportType.XLSX: XLSX_CONTENT_TYPE,
+    Report.ReportType.CERT: "application/pdf",
+}
+
+# report_type -> (generator returning bytes, file name suffix)
+GENERATORS = {
+    Report.ReportType.PDF: (generate_pdf_report, "pdf"),
+    Report.ReportType.CSV: (lambda a: generate_csv_report(a).encode("utf-8"), "csv"),
+    Report.ReportType.XLSX: (generate_xlsx_report, "xlsx"),
+    Report.ReportType.CERT: (generate_certificate_pdf, "certificate.pdf"),
+}
 
 
 class ReportViewSet(
@@ -81,25 +98,22 @@ class ReportViewSet(
                 status=status.HTTP_409_CONFLICT,
             )
 
-        report = Report.objects.create(assessment=assessment, report_type=report_type)
-        if report_type == Report.ReportType.PDF:
-            content = generate_pdf_report(assessment)
-            report.file.save(f"{report.id}.pdf", ContentFile(content), save=True)
-        elif report_type == Report.ReportType.CSV:
-            content = generate_csv_report(assessment)
-            report.file.save(f"{report.id}.csv", ContentFile(content.encode("utf-8")), save=True)
-        else:
-            report.delete()
+        if report_type not in GENERATORS:
             return Response(
                 {
                     "error": {
                         "code": "invalid_report_type",
-                        "message": "report_type must be PDF or CSV.",
+                        "message": "report_type must be one of PDF, CSV, XLSX or CERT.",
                         "field_errors": {},
                     }
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        generator, suffix = GENERATORS[report_type]
+        content = generator(assessment)
+        report = Report.objects.create(assessment=assessment, report_type=report_type)
+        report.file.save(f"{report.id}.{suffix}", ContentFile(content), save=True)
 
         log_action("report.generated", report, {"report_type": report_type})
         return Response(ReportSerializer(report).data, status=status.HTTP_201_CREATED)

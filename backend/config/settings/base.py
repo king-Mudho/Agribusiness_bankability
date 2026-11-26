@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "apps.feedback",
     "apps.research",
     "apps.audit",
+    "apps.portal",
 ]
 
 MIDDLEWARE = [
