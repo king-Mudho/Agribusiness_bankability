@@ -56,6 +56,24 @@ band, 5 gate results, evidence coverage percentage. Column headers must be stabl
 documented (list them literally in the CSV serializer so downstream research tooling can
 rely on the schema).
 
+### Bulk CSV export (Admin only)
+
+Django admin → Assessments → tick assessments (or "Select all") → action
+**"Export selected assessments to CSV"**. Produces one file with the same columns as
+the per-assessment CSV above, one row per assessment
+(`apps.reports.generators.generate_csv_export`).
+
+- Only users with the **Admin** role see or can run it. Bulk access to other
+  enterprises' individual assessments is Admin-only in the access matrix
+  (`18_DATA_PRIVACY.md`).
+- Unscored assessments are skipped, with a warning showing the count.
+- A selection spanning several framework versions is refused, because their
+  columns differ. Filter by framework version and export each one.
+- Every export writes an `assessments.exported` `AuditLog` entry (row count and
+  assessment ids).
+- The file contains enterprise names, so it is for the research team only. The consent
+  text covers research use, not sharing named results with third parties.
+
 ## Save on device (offline)
 
 When offline, "Save on device" triggers a client-side PDF/CSV generation fallback (or, at

@@ -131,9 +131,7 @@ def _csv_headers(assessment):
     return headers, questions, dimensions, gates
 
 
-def generate_csv_report(assessment) -> str:
-    headers, questions, dimensions, gates = _csv_headers(assessment)
-
+def _csv_row(assessment, questions, dimensions, gates) -> dict:
     responses_by_question = {r.question_id: r for r in assessment.responses.all()}
     dim_scores_by_dimension = {ds.dimension_id: ds for ds in assessment.dimension_scores.all()}
     gate_results_by_gate = {gr.gate_id: gr for gr in assessment.gate_results.all()}
@@ -164,9 +162,37 @@ def generate_csv_report(assessment) -> str:
         float(abi_score.evidence_coverage_percent) if abi_score else ""
     )
     row["disclaimer"] = RESEARCH_PROTOTYPE_DISCLAIMER
+    return row
 
+
+def generate_csv_report(assessment) -> str:
+    headers, questions, dimensions, gates = _csv_headers(assessment)
     buffer = io.StringIO()
     writer = csv.DictWriter(buffer, fieldnames=headers)
     writer.writeheader()
-    writer.writerow(row)
+    writer.writerow(_csv_row(assessment, questions, dimensions, gates))
+    return buffer.getvalue()
+
+
+def generate_csv_export(assessments) -> str:
+    """One CSV for many assessments: the same stable columns as the
+    per-assessment CSV report, one row per assessment.
+
+    Columns depend on the framework version (question/dimension/gate codes),
+    so every assessment must share one FrameworkVersion. Callers split
+    mixed selections by version first.
+    """
+    assessments = list(assessments)
+    if not assessments:
+        raise ValueError("No assessments to export.")
+    versions = {a.framework_version_id for a in assessments}
+    if len(versions) > 1:
+        raise ValueError("All assessments in one export must share a framework version.")
+
+    headers, questions, dimensions, gates = _csv_headers(assessments[0])
+    buffer = io.StringIO()
+    writer = csv.DictWriter(buffer, fieldnames=headers)
+    writer.writeheader()
+    for assessment in assessments:
+        writer.writerow(_csv_row(assessment, questions, dimensions, gates))
     return buffer.getvalue()
