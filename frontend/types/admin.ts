@@ -148,13 +148,28 @@ export interface AdminAuditRow {
 export interface AdminUserRow {
   id: number;
   username: string;
+  first_name: string;
+  last_name: string;
   full_name: string;
   email: string;
-  role: string | null;
+  role: RoleName | null;
+  role_label: string | null;
   is_active: boolean;
   last_login: string | null;
   date_joined: string;
 }
+
+export interface UserCreatePayload {
+  username: string;
+  password: string;
+  role: RoleName;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  is_active?: boolean;
+}
+
+export type UserUpdatePayload = Partial<Pick<AdminUserRow, "first_name" | "last_name" | "email" | "role" | "is_active">>;
 
 export type ExportDataset = "assessments" | "enterprises" | "feedback";
 export type ExportFileType = "csv" | "xlsx";

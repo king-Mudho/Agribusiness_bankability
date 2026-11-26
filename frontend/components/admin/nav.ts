@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   MessageSquare,
   ScrollText,
+  UserCircle,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -38,6 +39,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/admin/framework", label: "Framework", icon: BookOpen, roles: ["ADMIN", "RESEARCHER", "ANALYST"], group: "Research" },
   { href: "/admin/audit", label: "Audit log", icon: ScrollText, roles: ADMIN, group: "System" },
   { href: "/admin/users", label: "Users", icon: Users, roles: ADMIN, group: "System" },
+  { href: "/admin/account", label: "My account", icon: UserCircle, roles: ["ADMIN", "RESEARCHER", "ANALYST"], group: "System" },
 ];
 
 export function navForRole(role: RoleName | null | undefined): NavItem[] {

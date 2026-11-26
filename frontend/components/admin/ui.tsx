@@ -269,11 +269,11 @@ export function ExportButtons({ onExport, label = "Export" }: { onExport: (fileT
   return (
     <div className="flex flex-col items-end gap-1">
       <div className="flex gap-2">
-        <Button variant="secondary" className="gap-2" onClick={() => run("xlsx")} disabled={busy !== null}>
+        <Button variant="secondary" className="gap-2 whitespace-nowrap" onClick={() => run("xlsx")} disabled={busy !== null}>
           <FileSpreadsheet size={16} aria-hidden />
           {busy === "xlsx" ? "Preparing..." : `${label} Excel`}
         </Button>
-        <Button variant="outline" className="gap-2" onClick={() => run("csv")} disabled={busy !== null}>
+        <Button variant="outline" className="gap-2 whitespace-nowrap" onClick={() => run("csv")} disabled={busy !== null}>
           <FileText size={16} aria-hidden />
           {busy === "csv" ? "Preparing..." : "CSV"}
         </Button>

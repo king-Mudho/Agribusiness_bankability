@@ -60,7 +60,7 @@ for dashboard layout. Route summary:
 | `/dashboard` | Executive dashboard (toggle: Agribusiness view / Research-Lender view) |
 | `/reports/[id]` | Report preview, PDF/CSV download |
 | `/feedback/[id]` | Pilot feedback form |
-| `/admin` | **Admin portal** (sign-in; "Staff sign in" link on the landing page). Sidebar sections, shown by role (server enforces the same rules): Overview, Insights dashboard, Assessments (+ `/admin/assessments/[id]` full results), Enterprises, Reports & exports, Pilot feedback, Research tools, Framework (read-only), Audit log, Users (read-only). Admin sees all; Researcher: insights, research tools, framework; Analyst: insights, framework. Downloads: PDF report, Excel workbook, certificate PDF per assessment; Excel/CSV bulk exports. Account creation and framework edits still happen on the server/Django admin. |
+| `/admin` | **Admin portal** (sign-in; "Staff sign in" link on the landing page). Sidebar sections, shown by role (server enforces the same rules): Overview, Insights dashboard, Assessments (+ `/admin/assessments/[id]` full results), Enterprises, Reports & exports, Pilot feedback, Research tools, Framework (read-only), Audit log, Users (add users, edit role/details/active status, set passwords), My account (change your own password). Admin sees all; Researcher: insights, research tools, framework; Analyst: insights, framework. Downloads: PDF report, Excel workbook, certificate PDF per assessment; Excel/CSV bulk exports. Framework edits still happen through Django admin. |
 
 ## State management
 

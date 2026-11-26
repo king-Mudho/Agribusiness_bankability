@@ -13,6 +13,9 @@ import type {
   ExportFileType,
   Me,
   Paginated,
+  RoleName,
+  UserCreatePayload,
+  UserUpdatePayload,
 } from "@/types/admin";
 
 export type QueryParams = Record<string, string | number | undefined>;
@@ -45,6 +48,17 @@ export const adminApi = {
     apiClient.get<Paginated<AdminAuditRow>>(`/admin/audit-log/${qs(params)}`),
   users: (params?: QueryParams) =>
     apiClient.get<Paginated<AdminUserRow>>(`/admin/users/${qs(params)}`),
+  roles: () => apiClient.get<{ value: RoleName; label: string }[]>("/admin/roles/"),
+  createUser: (payload: UserCreatePayload) => apiClient.post<AdminUserRow>("/admin/users/", payload),
+  updateUser: (id: number, payload: UserUpdatePayload) =>
+    apiClient.patch<AdminUserRow>(`/admin/users/${id}/`, payload),
+  setUserPassword: (id: number, password: string) =>
+    apiClient.post<{ detail: string }>(`/admin/users/${id}/set-password/`, { password }),
+  changeOwnPassword: (currentPassword: string, newPassword: string) =>
+    apiClient.post<{ detail: string }>("/auth/change-password/", {
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
   exportData: (dataset: ExportDataset, fileType: ExportFileType, params?: QueryParams) =>
     apiClient.download(
       `/admin/export/${dataset}/${qs({ ...params, file_type: fileType, page: undefined })}`,

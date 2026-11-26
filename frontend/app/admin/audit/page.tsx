@@ -17,6 +17,10 @@ const ACTIONS = [
   "feedback.exported",
   "framework_version.created",
   "framework_version.changed",
+  "user.created",
+  "user.updated",
+  "user.password_set",
+  "user.password_changed",
 ].map((a) => ({ value: a, label: a }));
 
 function summarise(metadata: Record<string, unknown> | null): string {

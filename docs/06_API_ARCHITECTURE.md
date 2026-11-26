@@ -52,7 +52,11 @@ v0.1, but must be rate-limited and must not leak other enterprises' data.
 | GET | `/api/v1/admin/feedback/` | Admin portal: pilot feedback (**Admin**) |
 | GET | `/api/v1/admin/expert-reviews/`, `/admin/pretest-notes/` | Admin portal: submitted research records (**Admin**) |
 | GET | `/api/v1/admin/audit-log/` | Admin portal: audit log; `action` (**Admin**) |
-| GET | `/api/v1/admin/users/` | Admin portal: staff accounts and roles, read-only (**Admin**) |
+| GET/POST | `/api/v1/admin/users/` | Admin portal: list staff accounts / create one (`username`, `password`, `role`, optional names, email). Passwords checked by Django's validators, never returned (**Admin**) |
+| PATCH | `/api/v1/admin/users/{id}/` | Change names, email, `role`, `is_active`. An admin can't deactivate themselves or drop their own Admin role (**Admin**) |
+| POST | `/api/v1/admin/users/{id}/set-password/` | Set a new password for someone (**Admin**) |
+| GET | `/api/v1/admin/roles/` | Role choices for the user form (**Admin**) |
+| POST | `/api/v1/auth/change-password/` | Change your own password (`current_password`, `new_password`); any signed-in user |
 | GET | `/api/v1/admin/export/{assessments\|enterprises\|feedback}/` | Bulk export, `file_type=csv\|xlsx` (`format` is reserved by DRF); assessments accept the list filters. Audit-logged (**Admin**) |
 
 ## Key payload shapes

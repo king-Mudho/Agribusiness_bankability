@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import users, views
 
 urlpatterns = [
     path("admin/overview/", views.OverviewView.as_view(), name="portal-overview"),
@@ -11,7 +11,10 @@ urlpatterns = [
     path("admin/expert-reviews/", views.ExpertReviewListView.as_view(), name="portal-expert-reviews"),
     path("admin/pretest-notes/", views.PretestNoteListView.as_view(), name="portal-pretest-notes"),
     path("admin/audit-log/", views.AuditLogListView.as_view(), name="portal-audit-log"),
-    path("admin/users/", views.UserListView.as_view(), name="portal-users"),
+    path("admin/users/", users.UserListCreateView.as_view(), name="portal-users"),
+    path("admin/users/<int:pk>/", users.UserDetailView.as_view(), name="portal-user-detail"),
+    path("admin/users/<int:pk>/set-password/", users.UserSetPasswordView.as_view(), name="portal-user-set-password"),
+    path("admin/roles/", users.RoleListView.as_view(), name="portal-roles"),
     path("admin/frameworks/", views.FrameworkVersionsView.as_view(), name="portal-frameworks"),
     path("admin/export/<str:dataset>/", views.ExportView.as_view(), name="portal-export"),
 ]

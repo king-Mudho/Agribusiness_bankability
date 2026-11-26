@@ -348,28 +348,6 @@ class AuditLogListView(AdminView):
         )
 
 
-class UserListView(AdminView):
-    """GET /admin/users/ -- read-only. Accounts and roles are still created
-    in the Django admin; no passwords or tokens are ever returned."""
-
-    def get(self, request):
-        qs = User.objects.select_related("role").order_by("username")
-        return self.paginate(
-            request,
-            qs,
-            lambda u: {
-                "id": u.id,
-                "username": u.username,
-                "full_name": u.get_full_name(),
-                "email": u.email,
-                "role": u.role.get_name_display() if u.role_id else None,
-                "is_active": u.is_active,
-                "last_login": _iso(u.last_login),
-                "date_joined": _iso(u.date_joined),
-            },
-        )
-
-
 # ------------------------------------------------------------------ exports
 
 def _csv_text(headers, rows):
